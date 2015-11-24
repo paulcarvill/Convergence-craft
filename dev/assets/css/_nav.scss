@@ -1,0 +1,239 @@
+.player {
+	display: block;
+	height: 4px;
+	background: linear-gradient(90deg, #2aa9ea, #e90190);
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 5;
+}
+
+nav {
+	height: 96px;
+ 	width: 100%;
+	background: $maingrey;
+	text-align: left;
+  z-index: 100;
+}
+
+#conburger {
+	display: none;
+}
+
+nav .logo {
+  width: 96px;
+  height: 96px;
+  float: left;
+  display: block;
+  background-color: #e7e8e7;
+  text-align: center;
+  padding-top: 17px;
+}
+
+nav p {
+  margin-left: 96px;
+  height: 20px;
+  text-align: right;
+  margin-bottom: 0;
+  margin-top: 0 !important;
+}
+
+nav div {
+  height: 48px;
+  padding-top: 17px;
+  margin-left: 96px;
+  padding-left: 30px;
+  background-color: $maingrey;
+  float: right;
+}
+
+nav li {
+	list-style-type: none;
+	display: inline;
+	margin: 0 20px;
+}
+
+#xxx {
+	display: none;
+}
+
+/**************** STICKY NAV ***************/
+
+.stuck,
+body:not(.pages-index) nav {
+  /* the nav sticks to the top of every page
+  except index, where it starts at the bottom */
+  position:fixed;
+  margin-top: 4px;
+  top: 0;
+  width: 100%;
+  z-index: 5;
+  max-width: 1280px;
+  background-color: $maingrey;
+  transition: background-color 0.3s;
+}
+
+body:not(.pages-index) {
+	padding-top: 96px;
+}
+
+body:not(.pages-index, .pages-about) nav {
+  background-color: rgba(232,232,232,0.75);
+}
+
+@media screen and (min-width: 616px) {
+  body:not(.pages-index) nav div {
+    background-color: transparent;
+  }
+
+  nav a {
+    position: relative;
+  }
+
+  nav a.current::before {
+    content: "/////////////////////";
+    position: absolute;
+    top: -29px;
+    left: -14px;
+    font-family: arial;
+    font-weight: bold;
+    font-size: 12px;
+
+    background: -webkit-linear-gradient(45deg, #2aa9ea, #e90190);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+}
+
+.pages-index #splash-shift {
+  position: relative;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.sticky-wrapper {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  pointer-events: auto;
+}
+
+body:not(.pages-index) #splash-shift {
+  height: 4px;
+}
+
+/************* END STICKY NAV **************/
+
+
+
+@media screen and (max-width: 615px) {
+  nav {
+    height: 48px;
+    background: none;
+  }
+
+  nav .logo {
+    background-color: #e7e8e7;
+    border-bottom: none;
+  }
+
+  body:not(.pages-index) nav,
+  nav .logo {
+    background-color: $navgrey;
+  }
+
+  nav.stuck .logo {
+    background-color: transparent;
+  }
+  
+  .pages-index nav:not(.stuck) #conburger {
+    display: none;
+  }
+  
+  body:not(.blog-show) nav.stuck {
+    background-color: $navgrey;
+  }
+
+  body:not(.pages-index) {
+    padding-top: 48px;
+	}
+  
+  nav .logo {
+    height: 48px;
+    width: 48px;
+    padding-top: 9px;
+  }
+
+  nav .logo img {
+    height: 31px;
+    width: 35px;
+  }
+  
+  #conburger {
+  	display: block;
+    height: 48px;
+    width: 48px;
+    float: right;
+    padding-top: 15px;
+    text-align: center;
+  }
+
+  nav div {
+    display: none;
+    background: $smallscreennav;
+    margin: 0;
+    height: auto;
+    // text-align: left;
+    padding: 0;
+    // border: 0;
+  }
+
+  nav.open div {
+    display: block;
+  }
+
+  nav.open #conburger {
+    background: $smallscreennav;
+  }
+  
+  nav div li {
+    border-top: 1px solid $maingrey;
+    padding: 0 0 0 1em;
+    display: block;
+    margin: 0;
+  }
+
+  nav div li,
+  nav div li a {
+  	display: block;
+  }
+
+  nav div li a {
+    height: 50px;
+    padding-top: 18px;
+    color: #fff;
+  }
+
+  nav p {
+    border: 0;
+  }
+
+  .open #xxx {
+  	display: inline;
+  }
+
+  .open #menu {
+  	display: none;
+  }
+
+  nav * {
+    -moz-user-select: -moz-none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   -ms-user-select: none;
+   user-select: none;
+  }
+
+}

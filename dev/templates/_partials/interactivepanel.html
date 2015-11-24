@@ -1,0 +1,13 @@
+{% for event in events.limit(4) %}
+<div class="splash" style="background-image: url({{event.eventImage.first.getUrl('x720') }});">
+	<div class="splash-inner">
+		<div>
+			<h1>{{ event.title }}</h1>
+			<h2>{{ event.body }}</h2>
+			{% if event.tickets %}
+			<span style="display: none;"><a href="/events/{{ event.slug }}" class="buy">Buy tickets</a></span>
+			{% endif %}
+		</div>
+	</div>
+</div>  
+{% endfor %}

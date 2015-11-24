@@ -1,0 +1,153 @@
+footer h2 {
+	color: #9a9a9a;
+	font-size: 0.95em;
+	font-weight: normal;
+	text-transform: uppercase;
+	letter-spacing: 0.3em;
+	margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+footer ul {
+	margin: 0 0 1.8em 0;
+	padding: 0;
+	text-transform: uppercase;
+	margin-left: 160px;
+}
+
+footer p,
+footer p a {
+  color: #b3b3b3;
+  font-size: 14px;
+}
+
+footer a {
+	text-decoration: none;
+}
+
+footer svg {
+  fill: currentColor;
+	margin-right: 8pxem;
+}
+
+footer p.soc a:nth-of-type(1) svg {
+  margin-left: 16px;
+}
+
+footer svg:nth-of-type(1) {
+	margin-left: 10px;
+}
+
+footer svg:nth-of-type(6) {
+	margin-right: 0;
+}
+
+footer li {
+    list-style: none;
+    color: #c7c7c7;
+}
+
+footer li a {
+    padding-top: 13px;
+    color: #c7c7c7;
+}
+
+.afterfooter {
+  background: #000;
+  color: #444;
+  text-transform: uppercase;
+  text-align: right;
+  padding: 13px 16px 10px 16px;
+  clear: left;
+}
+
+@media screen and (max-width: 900px) { 
+  footer ul {
+    margin-left: 32px;
+  }
+}
+
+@media screen and (max-width: 660px) { 
+  footer ul {
+    margin-left: 16px;
+  }
+  footer li {
+    margin-bottom: 24px;
+  }
+  footer a:last-of-type svg {
+    margin-right: 0;
+  }
+  p.soc svg {
+    fill: currentColor;
+    width: 30px;
+    height: 30px;
+  }
+
+  p.soc {
+    float: none;
+    margin: 18px 0 8px 10px;
+  }
+
+  p.sites {
+    float: none;
+    margin: 16px 0 24px 30px;
+  }
+}
+
+@media screen and (min-width: 661px) { 
+  footer h2,
+  footer ul,
+  footer ul li,
+  footer ul li a {
+    float: left;
+  }
+  footer ul li {
+  	list-style: none;
+  	clear: left;
+  	
+  }
+  footer ul {
+    margin-top: 23px;
+    margin-bottom: 70px;
+  }
+  footer ul li:first-of-type a {
+  	padding-top: 0;
+  }
+  footer li a {
+    padding-top: 5px;
+  }
+  p.soc {
+    float: left;
+    margin: 18px 0 8px 10px;
+  }
+  p.soc svg {
+  	fill: currentColor;
+  	width: 30px;
+  	height: 30px;
+  }
+  p.sites {
+    float: right;
+    margin: 24px 24px 0 0;
+  }
+
+  footer p.soc,
+  footer p.soc a {
+    color: #e7e8e7;
+  }
+  footer svg {
+	 margin-right: 1em;
+  }
+  footer a:last-of-type svg {
+   margin-right: 0;
+  }
+  footer h2 {
+ 	font-size: 1.2em;
+ 	margin-top: 25px;
+  }
+  footer p.soc a:hover {
+    color: #888;
+  }
+  footer p.soc a:hover svg {
+    fill: currentColor;
+  }
+}

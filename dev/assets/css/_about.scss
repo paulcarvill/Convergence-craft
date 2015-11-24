@@ -1,0 +1,78 @@
+#container {
+	border-left: 1px solid $borderg;
+}
+
+.events-show #container {
+	margin-left: 0;
+	border: 0;
+}
+
+.pages-about #container {
+	padding: 0 0 0 48px;
+}
+
+.pages-about .content div {
+	margin-top: 44px;
+}
+
+.pages-about .content {
+	width: 545px;
+}
+
+@media screen and (max-width: 720px) {
+	.pages-about .content {
+	  width: auto;
+	}
+}
+
+@media screen and (max-width: 615px) {
+	#container {
+		border-left: 0;
+		margin-left: 0;
+	}
+	.content {
+		border-left: 1px solid $bordergrey;
+	}
+	.pages-about .content {
+		padding-top: 32px;
+	}
+}
+
+#mailinglistrow button {
+  width: 64px;
+  height: 64px;
+  background: url(/assets/img/submit.gif);
+  border: 0;
+  padding: 0;
+  margin: 0;
+  vertical-align: top;
+}
+
+a.buy {
+	z-index: 999;
+	text-transform: uppercase;
+	border: 0;
+	color: #fff;
+	width: 148px;
+	height: 50px;
+	padding-top: 20px;
+	background: url(/assets/img/button.gif);
+	cursor: pointer;
+	display: block;
+	text-align: center;
+	font-size: 16px;
+	line-height: 16px;
+}
+
+a.buyrainbow {
+	z-index: 999;
+	text-transform: uppercase;
+	border: 0;
+	background: -webkit-linear-gradient(0deg, #2aa9ea, #e90190);
+	-webkit-background-clip: text;
+  	-webkit-text-fill-color: transparent;
+	padding-top: 2px;
+	cursor: pointer;
+	font-size: 16px;
+	line-height: 16px;
+}

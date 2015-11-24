@@ -1,0 +1,20 @@
+<div class="events row">
+  {% for row in events|batch(4) %}
+    <div>
+      {% for event in row %}
+      <a href="/events/{{ event.slug }}" />
+        <div class="event-container" style="z-index: <%= (i*-1)+5%>; background-image: url({{event.eventImage.first.getUrl('x504') }});">
+          <div class="event-overlay">
+          </div>
+        </div>
+      
+        <div class="event-inner">
+          <p class="time"><b>{{ event.startTime| date("d F Y")| upper }}</b></p>
+          <p class="name"><b>{{ event.title }}</b></p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  {% endfor %}
+</div>
+

@@ -1,0 +1,41 @@
+{% set title = "News" %}
+{% set entries = craft.entries.section('news').order('startTime desc') %}
+{% set bodyClasses = "blogs-index" %}
+{% extends "_layouts/default.html" %}
+
+{% block meta %}
+<meta property="og:url" content="{{ request.url }}" /> 
+<meta property="og:title" content="Convergence" />
+<meta property="og:description" content="Music + Art + Technology" /> 
+<meta property="og:image" content="http://{{ request.host }}{{ 'logo.png' }}" />
+<meta property="og:type" content="website" />
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@ConvergenceLDN">
+<meta name="twitter:title" content="Convergence news">
+<meta name="twitter:description" content="Music + Art + Technology">
+{% endblock %}
+
+{% block page_content %}
+<div id="container">
+	<div class="content">
+		<div class="body">
+			<div class="blog">
+				{% for entry in entries %}
+					<h1>{{ entry.getLink() }}</h1>
+					<p class="author">{{ entry.postDate | date("d F Y")| upper }}</p>
+					<a href="/news/{{ blog.slug }}"><img src="{{ entry.eventImage.first.getUrl('x504') }}" /></a>
+					<p>{{ entry.body|hacksaw(words='100', append='&hellip;') }}</p>
+            		<p><a href="/blog/{{ blog.slug }}">&hellip;read more</a></p>
+				{% endfor %}
+			</div>
+		</div>
+		{% include "_partials/share" %}
+
+		<div class="body">
+			
+		</div>
+	</div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,43 @@
+{% import "_partials/_macros.html" as macros %}
+<nav>
+  <span id="conburger">
+    <svg id="menu" x="0px" y="0px" width="23px" height="18px" viewBox="0 0 7.68 7.68" enable-background="new 0 0 7.68 7.68" xml:space="preserve">
+    <g id="Layer_16">
+      <g>
+        <g>
+          <path fill-rule="evenodd" clip-rule="evenodd" fill="#444444" d="M7.332,3.351h-7C0.148,3.351,0,3.5,0,3.684
+        c0,0.185,0.149,0.334,0.333,0.334h7c0.183,0,0.332-0.149,0.332-0.334C7.664,3.5,7.515,3.351,7.332,3.351z M7.332,6.018h-7
+        C0.148,6.018,0,6.165,0,6.349c0,0.185,0.149,0.335,0.333,0.335h7c0.183,0,0.332-0.15,0.332-0.335
+        C7.664,6.165,7.515,6.018,7.332,6.018z M0.333,1.351h7c0.183,0,0.332-0.148,0.332-0.333c0-0.184-0.149-0.333-0.332-0.333h-7
+        C0.148,0.685,0,0.834,0,1.018C0,1.203,0.148,1.351,0.333,1.351z"/>
+        </g>
+      </g>
+    </g>
+    </svg>
+    <svg id="xxx" x="0px" y="0px" width="23px" height="18px" viewBox="0 0 7.68 7.68" enable-background="new 0 0 7.68 7.68" xml:space="preserve">
+<g id="Layer_15">
+  <g>
+    <g>
+      <path fill="#e8e8e8" d="M4.312,3.708l2.396-2.396c0.132-0.133,0.132-0.348,0-0.479C6.575,0.7,6.361,0.7,6.229,0.832L3.832,3.228
+        L1.436,0.832C1.303,0.7,1.088,0.7,0.956,0.832c-0.133,0.132-0.133,0.347,0,0.479l2.396,2.396L0.956,6.104
+        c-0.133,0.131-0.133,0.347,0,0.479c0.132,0.131,0.347,0.131,0.479,0l2.396-2.396l2.396,2.396c0.133,0.131,0.348,0.131,0.479,0
+        c0.132-0.134,0.132-0.35,0-0.479L4.312,3.708z"/>
+    </g>
+  </g>
+</g>
+</svg>
+
+
+  </span>
+  <a class="logo" href="/"><img src="/assets/img/logo.png"" width="70" height="62" /></a>
+  <p><!-- audio player info goes here --></p>
+  <div>
+    <li><a class="{{ macros.is_active('about') }}" href="/about">ABOUT</a></li>
+    <li><a class="{{ macros.is_active('news') }}" href="/news">NEWS</a></li>
+    <li><a class="{{ macros.is_active('events') }}" href="/events">EVENTS</a></li>
+    <li><a class="{{ macros.is_active('locations') }}" href="/locations">LOCATIONS</a></li>
+    <li style="color: #999; text-decoration: line-through">TICKETS</li>
+    <li><a class="{{ macros.is_active('2015') }}" href="/2015">ARCHIVE</a></li>
+  </ul>
+  </div>
+</nav>

@@ -1,0 +1,65 @@
+{% set title = entry.title %}
+{% set bodyClasses = "entrys-show" %}
+{% extends "_layouts/default.html" %}
+
+{% block meta %}
+<meta property="og:url" content="{{ craft.request.url }}" /> 
+<meta property="og:title" content="{{ entry.title }}" />
+<meta property="og:description" content="{{ entry.body|hacksaw(words='100', append='&hellip;') }}" /> 
+<meta property="og:image" content="http://<%= craft.request.host %>/assets/img/logo.png" />
+<meta property="og:type" content="website" />
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ConvergenceLDN">
+<meta name="twitter:creator" content="@ConvergenceLDN">
+<meta name="twitter:title" content="{{ entry.title }}">
+<meta name="twitter:description" content="{{ entry.body|hacksaw(words='20') }}">
+<meta name="twitter:image:src" content="{{ entry.eventImage.first.getUrl('x504') }}">
+{% endblock %}
+
+{% block page_content %}
+<div id="container">
+  <img src="{{ entry.eventImage.first.getUrl('x504') }}" srcset="{{ entry.eventImageShortVersion.first.getUrl('x255') }} 640w, {{ entry.eventImageShortVersion.first.getUrl('x510') }} 1280w" />
+    
+  <div class="content">
+    <div class="body">
+      <div class="blog">
+        <h1>{{ entry.title }}</h1>
+        <div class="datesquare">
+          <p>{{ entry.startTime| date("d")| upper }}</p>
+          <p>{{ entry.endTime| date("M")| upper }}</p>
+        </div>
+        <p class="time"><b>{{ entry.startTime| date("d F Y")| upper }}</b></p>
+        <p class="address">{{ entry.venue.first }}</p>
+        <p class="address">{{ entry.startTime| date("H:i")| upper }} - {{ entry.endTime| date("H:i")| upper }}</p>
+        
+        <p>{{ entry.venue.title }}</p>
+
+        {% include "_partials/button" %}
+
+        {{ entry.body }}
+
+      </div>
+    </div>
+    {% include "_partials/share" %}
+
+    <div class="body">
+      <div class="blog">
+        <div class="cvg-disqus">
+          <div id="disqus_thread">
+          </div>
+            <script type="text/javascript">
+                var disqus_shortname = 'convergencelondon';
+                /* * * DON'T EDIT BELOW THIS LINE * * */
+                (function() {
+                    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+            </script>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

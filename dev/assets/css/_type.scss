@@ -1,0 +1,168 @@
+/*
+ * Emigre web font kit 545dfc0721b2a
+ * 
+ * These fonts are not shareware. 
+ * Use of these fonts requires the purchase 
+ * of a license from Emigre, www.emigre.com  
+ * Please contact sales@emigre.com
+ *
+ * To purchase a license to use this font go to:
+ * http://www.emigre.com/fontpage.php?SPriSaR.html
+ *
+ * © 2012 Emigre, Inc
+ */
+@font-face {
+    font-family: 'PrioriSanRegularMedium';
+    src: url('/assets/fonts/priorsanreg-071211002EmigreWebOnly.eot');
+    src: url('/assets/fonts/priorsanreg-071211002EmigreWebOnly.eot?#iefix') format('embedded-opentype'),
+         url('/assets/fonts/priorsanreg-071211002EmigreWebOnly.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+/*
+ * Emigre web font kit 545dfc071f591
+ * 
+ * These fonts are not shareware. 
+ * Use of these fonts requires the purchase 
+ * of a license from Emigre, www.emigre.com  
+ * Please contact sales@emigre.com
+ *
+ * To purchase a license to use this font go to:
+ * http://www.emigre.com/fontpage.php?SPriSaB.html
+ *
+ * © 2012 Emigre, Inc
+ */
+@font-face {
+    font-family: 'PrioriSanBoldBold';
+    src: url('/assets/fonts/priorsanbol-071211005EmigreWebOnly.eot');
+    src: url('/assets/fonts/priorsanbol-071211005EmigreWebOnly.eot?#iefix') format('embedded-opentype'),
+         url('/assets/fonts/priorsanbol-071211005EmigreWebOnly.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+body, div, p, span, ul, li, h3, h4, h5, h6 {
+	font-family: "PrioriSanRegularMedium", Helvetica, arial, sans-serif;
+	font-size: 16px;
+	line-height: 1.5em;
+  color: $bodycopy;
+}
+
+p,
+footer ul,
+.blog,
+.blog li,
+.blog b,
+.blog li b {
+  font-size: 24px;
+}
+
+ .share .blog span {
+  font-size: 16px;
+ }
+
+ .share .blog {
+  line-height: 1em;
+ }
+
+/**************** HEADINGS *********************/
+
+h1, h2, strong, b {
+	font-family: "PrioriSanBoldBold", Helvetica, arial, sans-serif;
+	font-weight: normal;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	line-height: 1em;
+}
+
+h1 {
+	font-size: 78px;
+  margin-top: 64px;
+}
+
+h2 {
+	font-size: 2em;
+}
+
+h3 {
+	font-size: 2em;
+}
+
+.splash.launch h1 {
+  font-family: 'Oxygen', sans-serif;
+  font-size: 4em;
+  letter-spacing: 0.2em;
+  margin-top: 12px;
+  margin-bottom: 29px;
+}
+
+.splash.launch h2 {
+	margin-bottom: 6px;
+}
+
+.splash:not(.launch) h1,
+.splash:not(.launch) h2 {
+  text-shadow: 0 0 20px #444;
+}
+
+@media screen and (max-width: 615px) {
+
+  h1 {
+    font-size: 40px;
+    margin-top: 24px;
+  }
+  
+  .events-show p.address:nth-of-type(1),
+  .events-show p.time,
+  .events-index p.address:nth-of-type(1),
+  .events-index p.time {
+    margin-top: 16px;
+  }
+  .events-show p.time,
+  .events-index p.time {
+    margin-bottom: 0;
+  }
+
+  .blogs-index h1,
+  .blogs-show h1,
+  .pages-about h1,
+  .blogrow h1 {
+    font-size: 40px;
+    margin-top: 24px;
+  }
+  .blogs-index p.author {
+    margin: 16px 0;
+  }
+  .splash.launch h1 {
+    font-size: 2em;
+  }
+
+  .splash.launch h2,
+  .splash.launch h3 {
+    font-size: 1em;
+  }
+}
+
+@media screen and (max-width: 319px) {
+  .splash.launch h1,
+  .splash.launch h2,
+  .splash.launch h3 {
+    font-size: 1em;
+  }
+}
+
+
+/****** END HEADINGS *************************/
+
+
+a {
+  text-decoration: none;
+  color: currentColor;
+}
+
+a:hover {
+  text-decoration: underline;
+}

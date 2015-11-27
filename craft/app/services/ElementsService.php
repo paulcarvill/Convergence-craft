@@ -23,6 +23,11 @@ class ElementsService extends BaseApplicationComponent
 	 */
 	private $_placeholderElements;
 
+	/**
+	 * @var array
+	 */
+	private $_searchResults;
+
 	// Public Methods
 	// =========================================================================
 
@@ -64,7 +69,7 @@ class ElementsService extends BaseApplicationComponent
 	 * If no element type is provided, the method will first have to run a DB query to determine what type of element
 	 * the $elementId is, so you should definitely pass it if it’s known.
 	 *
-	 * The element’s status will not be a factor when usisng this method.
+	 * The element’s status will not be a factor when using this method.
 	 *
 	 * @param int    $elementId   The element’s ID.
 	 * @param null   $elementType The element type’s class handle.
@@ -198,54 +203,10 @@ class ElementsService extends BaseApplicationComponent
 	public function findElements($criteria = null, $justIds = false)
 	{
 		$elements = array();
-		$query = $this->buildElementsQuery($criteria, $contentTable, $fieldColumns);
+		$query = $this->buildElementsQuery($criteria, $contentTable, $fieldColumns, $justIds);
 
 		if ($query)
 		{
-			if ($justIds)
-			{
-				$query->select('elements.id');
-			}
-
-			if ($criteria->fixedOrder)
-			{
-				$ids = ArrayHelper::stringToArray($criteria->id);
-
-				if (!$ids)
-				{
-					return array();
-				}
-
-				$query->order(craft()->db->getSchema()->orderByColumnValues('elements.id', $ids));
-			}
-			else if ($criteria->order && $criteria->order != 'score')
-			{
-				$order = $criteria->order;
-
-				if (is_array($fieldColumns))
-				{
-					// Add the field column prefixes
-					foreach ($fieldColumns as $column)
-					{
-						// Avoid matching fields named "asc" or "desc" in the string "column_name asc" or
-						// "column_name desc"
-						$order = preg_replace('/(?<!\s)\b'.$column['handle'].'\b/', $column['column'].'$1', $order);
-					}
-				}
-
-				$query->order($order);
-			}
-
-			if ($criteria->offset)
-			{
-				$query->offset($criteria->offset);
-			}
-
-			if ($criteria->limit)
-			{
-				$query->limit($criteria->limit);
-			}
-
 			$results = $query->queryAll();
 
 			if ($results)
@@ -310,6 +271,13 @@ class ElementsService extends BaseApplicationComponent
 							}
 
 							$result['locale'] = $locale;
+
+							// Should we set a search score on the element?
+							if (isset($this->_searchResults[$result['id']]))
+							{
+								$result['searchScore'] = $this->_searchResults[$result['id']];
+							}
+
 							$element = $elementType->populateElementModel($result);
 
 							// Was an element returned?
@@ -374,14 +342,18 @@ class ElementsService extends BaseApplicationComponent
 
 		if ($query)
 		{
-			$elementIds = $this->_getElementIdsFromQuery($query);
+			// Remove the order, offset, limit, and any additional tables in the FROM clause
+			$query
+				->order('')
+				->offset(0)
+				->limit(-1)
+				->select('elements.id')
+				->from('elements elements');
 
-			if ($criteria->search)
-			{
-				$elementIds = craft()->search->filterElementIdsByQuery($elementIds, $criteria->search, false);
-			}
+			// Can't use COUNT() here because of complications with the GROUP BY clause.
+			$rows = $query->queryColumn();
 
-			return count($elementIds);
+			return count($rows);
 		}
 		else
 		{
@@ -401,11 +373,13 @@ class ElementsService extends BaseApplicationComponent
 	 *                                            will actually get defined by buildElementsQuery(), and is passed by
 	 *                                            reference so whatever’s calling the method will have access to its
 	 *                                            value.)
+	 * @param bool                 $justIds       Whether the method should only return an array of the IDs of the
+	 *                                            matched elements. Defaults to `false`.
 	 *
 	 * @return DbCommand|false The DbCommand object, or `false` if the method was able to determine ahead of time that
 	 *                         there’s no chance any elements are going to be found with the given parameters.
 	 */
-	public function buildElementsQuery(&$criteria = null, &$contentTable = null, &$fieldColumns = null)
+	public function buildElementsQuery(&$criteria = null, &$contentTable = null, &$fieldColumns = null, $justIds = false)
 	{
 		if (!($criteria instanceof ElementCriteriaModel))
 		{
@@ -428,8 +402,34 @@ class ElementsService extends BaseApplicationComponent
 		// Set up the query
 		// ---------------------------------------------------------------------
 
-		$query = craft()->db->createCommand()
-			->select('elements.id, elements.type, elements.enabled, elements.archived, elements.dateCreated, elements.dateUpdated, elements_i18n.slug, elements_i18n.uri, elements_i18n.enabled AS localeEnabled')
+		// Create the DbCommand object
+		$query = craft()->db->createCommand();
+
+		// Fire an 'onBeforeBuildElementsQuery' event
+		$event = new Event($this, array(
+			'criteria' => $criteria,
+			'justIds' => $justIds,
+			'query' => $query
+		));
+
+		$this->onBeforeBuildElementsQuery($event);
+
+		// Did any of the event handlers object to this query?
+		if (!$event->performAction)
+		{
+			return false;
+		}
+
+		if ($justIds)
+		{
+			$query->select('elements.id');
+		}
+		else
+		{
+			$query->select('elements.id, elements.type, elements.enabled, elements.archived, elements.dateCreated, elements.dateUpdated, elements_i18n.slug, elements_i18n.uri, elements_i18n.enabled AS localeEnabled');
+		}
+
+		$query
 			->from('elements elements')
 			->join('elements_i18n elements_i18n', 'elements_i18n.elementId = elements.id')
 			->where('elements_i18n.locale = :locale', array(':locale' => $criteria->locale))
@@ -456,7 +456,11 @@ class ElementsService extends BaseApplicationComponent
 					$contentCols .= ', content.'.$column['column'];
 				}
 
-				$query->addSelect($contentCols);
+				if (!$justIds)
+				{
+					$query->addSelect($contentCols);
+				}
+
 				$query->join($contentTable.' content', 'content.elementId = elements.id');
 				$query->andWhere('content.locale = :locale');
 			}
@@ -607,7 +611,7 @@ class ElementsService extends BaseApplicationComponent
 
 			// If there's only one relation criteria and it's specifically for grabbing target elements, allow the query
 			// to order by the relation sort order
-			if ($relationParamParser->isRelationFieldQuery())
+			if (!$justIds && $relationParamParser->isRelationFieldQuery())
 			{
 				$query->addSelect('sources1.sortOrder');
 			}
@@ -621,7 +625,7 @@ class ElementsService extends BaseApplicationComponent
 			$contentService = craft()->content;
 			$originalFieldColumnPrefix = $contentService->fieldColumnPrefix;
 
-			// TODO: $fields should already be defined by now in Carft 3.0
+			// TODO: $fields should already be defined by now in Craft 3.0
 			$fields = $elementType->getFieldsForElementsQuery($criteria);
 			$extraCriteriaAttributes = $criteria->getExtraAttributeNames();
 
@@ -674,7 +678,10 @@ class ElementsService extends BaseApplicationComponent
 
 		if ($query->isJoined('structureelements'))
 		{
-			$query->addSelect('structureelements.root, structureelements.lft, structureelements.rgt, structureelements.level');
+			if (!$justIds)
+			{
+				$query->addSelect('structureelements.root, structureelements.lft, structureelements.rgt, structureelements.level');
+			}
 
 			if ($criteria->ancestorOf)
 			{
@@ -923,26 +930,92 @@ class ElementsService extends BaseApplicationComponent
 		// Search
 		// ---------------------------------------------------------------------
 
+		$this->_searchResults = null;
+
 		if ($criteria->search)
 		{
 			$elementIds = $this->_getElementIdsFromQuery($query);
-			$scoredSearchResults = ($criteria->order == 'score');
-			$filteredElementIds = craft()->search->filterElementIdsByQuery($elementIds, $criteria->search, $scoredSearchResults);
+			$searchResults = craft()->search->filterElementIdsByQuery($elementIds, $criteria->search, true, $criteria->locale, true);
 
 			// No results?
-			if (!$filteredElementIds)
+			if (!$searchResults)
 			{
-				return array();
+				return false;
 			}
 
-			$query->andWhere(array('in', 'elements.id', $filteredElementIds));
+			$filteredElementIds = array_keys($searchResults);
 
-			if ($scoredSearchResults)
+			if ($criteria->order == 'score')
 			{
 				// Order the elements in the exact order that SearchService returned them in
 				$query->order(craft()->db->getSchema()->orderByColumnValues('elements.id', $filteredElementIds));
 			}
+
+			$query->andWhere(array('in', 'elements.id', $filteredElementIds));
+
+			$this->_searchResults = $searchResults;
 		}
+
+		// Order
+		// ---------------------------------------------------------------------
+
+		if ($criteria->fixedOrder)
+		{
+			$ids = ArrayHelper::stringToArray($criteria->id);
+
+			if (!$ids)
+			{
+				return array();
+			}
+
+			$query->order(craft()->db->getSchema()->orderByColumnValues('elements.id', $ids));
+		}
+		else if ($criteria->order && $criteria->order != 'score')
+		{
+			$order = $criteria->order;
+			$orderColumnMap = array();
+
+			if (is_array($fieldColumns))
+			{
+				// Add the field column prefixes
+				foreach ($fieldColumns as $column)
+				{
+					$orderColumnMap[$column['handle']] = $column['column'];
+				}
+			}
+
+			// Prevent “1052 Column 'id' in order clause is ambiguous” MySQL error
+			$orderColumnMap['id'] = 'elements.id';
+
+			foreach ($orderColumnMap as $orderValue => $columnName)
+			{
+				// Avoid matching fields named "asc" or "desc" in the string "column_name asc" or
+				// "column_name desc"
+				$order = preg_replace('/(?<!\w\s)\b'.$orderValue.'\b/', $columnName.'$1', $order);
+			}
+
+			$query->order($order);
+		}
+
+		// Offset and Limit
+		// ---------------------------------------------------------------------
+
+		if ($criteria->offset)
+		{
+			$query->offset($criteria->offset);
+		}
+
+		if ($criteria->limit)
+		{
+			$query->limit($criteria->limit);
+		}
+
+		// Fire an 'onBuildElementsQuery' event
+		$this->onBuildElementsQuery(new Event($this, array(
+			'criteria' => $criteria,
+			'justIds' => $justIds,
+			'query' => $query
+		)));
 
 		return $query;
 	}
@@ -1376,11 +1449,25 @@ class ElementsService extends BaseApplicationComponent
 	 * @param BaseElementModel $element            The element to update.
 	 * @param bool             $updateOtherLocales Whether the element’s other locales should also be updated.
 	 * @param bool             $updateDescendants  Whether the element’s descendants should also be updated.
+	 * @param bool             $asTask             Whether the element’s slug and URI should be updated via a background task.
 	 *
 	 * @return null
 	 */
-	public function updateElementSlugAndUri(BaseElementModel $element, $updateOtherLocales = true, $updateDescendants = true)
+	public function updateElementSlugAndUri(BaseElementModel $element, $updateOtherLocales = true, $updateDescendants = true, $asTask = false)
 	{
+		if ($asTask)
+		{
+			craft()->tasks->createTask('UpdateElementSlugsAndUris', null, array(
+				'elementId'          => $element->id,
+				'elementType'        => $element->getElementType(),
+				'locale'             => $element->locale,
+				'updateOtherLocales' => $updateOtherLocales,
+				'updateDescendants'  => $updateDescendants,
+			));
+
+			return;
+		}
+
 		ElementHelper::setUniqueUri($element);
 
 		craft()->db->createCommand()->update('elements_i18n', array(
@@ -1401,7 +1488,7 @@ class ElementsService extends BaseApplicationComponent
 
 		if ($updateDescendants)
 		{
-			$this->updateDescendantSlugsAndUris($element);
+			$this->updateDescendantSlugsAndUris($element, $updateOtherLocales);
 		}
 	}
 
@@ -1433,22 +1520,45 @@ class ElementsService extends BaseApplicationComponent
 	/**
 	 * Updates an element’s descendants’ slugs and URIs.
 	 *
-	 * @param BaseElementModel $element The element whose descendants should be updated.
+	 * @param BaseElementModel $element            The element whose descendants should be updated.
+	 * @param bool             $updateOtherLocales Whether the element’s other locales should also be updated.
+	 * @param bool             $asTask             Whether the descendants’ slugs and URIs should be updated via a background task.
 	 *
 	 * @return null
 	 */
-	public function updateDescendantSlugsAndUris(BaseElementModel $element)
+	public function updateDescendantSlugsAndUris(BaseElementModel $element, $updateOtherLocales = true, $asTask = false)
 	{
 		$criteria = $this->getCriteria($element->getElementType());
 		$criteria->descendantOf = $element;
 		$criteria->descendantDist = 1;
 		$criteria->status = null;
 		$criteria->localeEnabled = null;
-		$children = $criteria->find();
+		$criteria->locale = $element->locale;
 
-		foreach ($children as $child)
+		if ($asTask)
 		{
-			$this->updateElementSlugAndUri($child);
+			$childIds = $criteria->ids();
+
+			if ($childIds)
+			{
+				craft()->tasks->createTask('UpdateElementSlugsAndUris', null, array(
+					'elementId'          => $childIds,
+					'elementType'        => $element->getElementType(),
+					'locale'             => $element->locale,
+					'updateOtherLocales' => $updateOtherLocales,
+					'updateDescendants'  => true,
+				));
+			}
+
+		}
+		else
+		{
+			$children = $criteria->find();
+
+			foreach ($children as $child)
+			{
+				$this->updateElementSlugAndUri($child, $updateOtherLocales, true, false);
+			}
 		}
 	}
 
@@ -1832,6 +1942,7 @@ class ElementsService extends BaseApplicationComponent
 							{
 								$criteria = craft()->elements->getCriteria($elementTypeHandle);
 								$criteria->status = null;
+								$criteria->limit = null;
 								$criteria->$thing = array_keys($refTagsByThing);
 								$elements = $criteria->find();
 
@@ -1915,6 +2026,30 @@ class ElementsService extends BaseApplicationComponent
 	// -------------------------------------------------------------------------
 
 	/**
+	 * Fires an 'onBeforeBuildElementsQuery' event.
+	 *
+	 * @param Event $event
+	 *
+	 * @return null
+	 */
+	public function onBeforeBuildElementsQuery(Event $event)
+	{
+		$this->raiseEvent('onBeforeBuildElementsQuery', $event);
+	}
+
+	/**
+	 * Fires an 'onBuildElementsQuery' event.
+	 *
+	 * @param Event $event
+	 *
+	 * @return null
+	 */
+	public function onBuildElementsQuery(Event $event)
+	{
+		$this->raiseEvent('onBuildElementsQuery', $event);
+	}
+
+	/**
 	 * Fires an 'onPopulateElement' event.
 	 *
 	 * @param Event $event
@@ -1974,6 +2109,30 @@ class ElementsService extends BaseApplicationComponent
 		$this->raiseEvent('onSaveElement', $event);
 	}
 
+	/**
+	 * Fires an 'onBeforePerformAction' event.
+	 *
+	 * @param Event $event
+	 *
+	 * @return null
+	 */
+	public function onBeforePerformAction(Event $event)
+	{
+		$this->raiseEvent('onBeforePerformAction', $event);
+	}
+
+	/**
+	 * Fires an 'onPerformAction' event.
+	 *
+	 * @param Event $event
+	 *
+	 * @return null
+	 */
+	public function onPerformAction(Event $event)
+	{
+		$this->raiseEvent('onPerformAction', $event);
+	}
+
 	// Private Methods
 	// =========================================================================
 
@@ -1989,8 +2148,7 @@ class ElementsService extends BaseApplicationComponent
 		// Get the matched element IDs, and then have the SearchService filter them.
 		$elementIdsQuery = craft()->db->createCommand()
 			->select('elements.id')
-			->from('elements elements')
-			->group('elements.id');
+			->from('elements elements');
 
 		$elementIdsQuery->setWhere($query->getWhere());
 		$elementIdsQuery->setJoin($query->getJoin());

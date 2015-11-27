@@ -91,6 +91,16 @@ class QuickPostWidget extends BaseWidget
 	}
 
 	/**
+	 * @inheritDoc IWidget::getIconPath()
+	 *
+	 * @return string
+	 */
+	public function getIconPath()
+	{
+		return craft()->path->getResourcesPath().'images/widgets/quick-post.svg';
+	}
+
+	/**
 	 * @inheritDoc IWidget::getTitle()
 	 *
 	 * @return string
@@ -103,7 +113,7 @@ class QuickPostWidget extends BaseWidget
 
 			if ($section)
 			{
-				return Craft::t('Post a new {section} entry', array('section' => $section->name));
+				return Craft::t('Post a new {section} entry', array('section' => Craft::t($section->name)));
 			}
 		}
 
@@ -140,7 +150,7 @@ class QuickPostWidget extends BaseWidget
 		}
 		else
 		{
-			$entryTypeId = array_shift(array_keys($entryTypes));
+			$entryTypeId = ArrayHelper::getFirstKey($entryTypes);
 		}
 
 		$entryType = $entryTypes[$entryTypeId];

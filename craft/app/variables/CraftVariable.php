@@ -144,11 +144,27 @@ class CraftVariable
 	}
 
 	/**
+	 * @return CategoryGroupsVariable
+	 */
+	public function categoryGroups()
+	{
+		return new CategoryGroupsVariable();
+	}
+
+	/**
 	 * @return ConfigVariable
 	 */
 	public function config()
 	{
 		return new ConfigVariable();
+	}
+
+	/**
+	 * @return ElementsVariable
+	 */
+	public function elementIndexes()
+	{
+		return new ElementIndexesVariable();
 	}
 
 	/**
@@ -165,14 +181,6 @@ class CraftVariable
 	public function cp()
 	{
 		return new CpVariable();
-	}
-
-	/**
-	 * @return DashboardVariable
-	 */
-	public function dashboard()
-	{
-		return new DashboardVariable();
 	}
 
 	/**

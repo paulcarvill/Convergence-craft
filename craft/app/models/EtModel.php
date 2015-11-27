@@ -79,11 +79,17 @@ class EtModel extends BaseModel
 		// The track this install is on.  Not required for backwards compatibility.
 		$attributes['track'] = array(AttributeType::String);
 
+		// Whether or not to show beta releases.
+		$attributes['showBeta'] = AttributeType::Bool;
+
 		// Any errors to return;
 		$attributes['errors'] = AttributeType::Mixed;
 
 		// Any additional server info to include.
 		$attributes['serverInfo'] = AttributeType::Mixed;
+
+		// The context of the request. Either 'craft' or a plugin handle.
+		$attributes['handle'] = array(AttributeType::String, 'default' => 'craft', 'required' => true);
 
 		return $attributes;
 	}

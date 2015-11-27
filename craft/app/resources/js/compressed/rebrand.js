@@ -4,7 +4,7 @@
  @see       http://buildwithcraft.com
  @package   craft.app.resources
 */
-(function(b){function d(a){"undefined"!=typeof a.html&&(b(".cp-logo").replaceWith(a.html),e())}function e(){c.uploadButton=b(".logo-controls .upload-logo");c.deleteButton=b(".logo-controls .delete-logo");new Craft.ImageUpload(c)}var c={modalClass:"logo-modal",uploadAction:"rebrand/uploadLogo",deleteMessage:Craft.t("Are you sure you want to delete the logo?"),deleteAction:"rebrand/deleteLogo",cropAction:"rebrand/cropLogo",areaToolOptions:{aspectRatio:"",initialRectangle:{mode:"auto"}},onImageSave:function(a){d(a)},
-onImageDelete:function(a){d(a)}};e()})(jQuery);
+(function(c){function f(a,d){"undefined"!=typeof d.html&&($html=c(d.html),"object"==typeof a.data("imageUpload")&&(a.data("imageUpload").destroy(),a.data("imageUpload",null)),a.replaceWith($html),g($html))}function g(a){var d=a.data("type"),b={modalClass:"cp-image-modal",uploadAction:"rebrand/uploadSiteImage",deleteMessage:Craft.t("Are you sure you want to delete the uploaded image?"),deleteAction:"rebrand/deleteSiteImage",cropAction:"rebrand/cropSiteImage",areaToolOptions:{aspectRatio:"",initialRectangle:{mode:"auto"}}};
+b.onImageSave=c.proxy(function(a){f(c(this),a)},a);b.onImageDelete=c.proxy(function(a,b){f(c(this),a)},a);b.uploadButton=a.find(".upload");b.deleteButton=a.find(".delete");b.postParameters={type:d};a.data("imageUpload",new Craft.ImageUpload(b))}for(var h=c(".cp-image"),e=0;e<h.length;e++)g(h.eq(e))})(jQuery);
 
 //# sourceMappingURL=rebrand.min.map

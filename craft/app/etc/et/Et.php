@@ -56,13 +56,17 @@ class Et
 	 *
 	 * @return Et
 	 */
-	public function __construct($endpoint, $timeout = 30, $connectTimeout = 2)
+	public function __construct($endpoint, $timeout = 30, $connectTimeout = 30)
 	{
 		$endpoint .= craft()->config->get('endpointSuffix');
 
 		$this->_endpoint = $endpoint;
 		$this->_timeout = $timeout;
 		$this->_connectTimeout = $connectTimeout;
+
+		// There can be a race condition after an update from older Craft versions where they lose session
+		// and another call to elliott is made during cleanup.
+		$userEmail = craft()->userSession->getUser() ? craft()->userSession->getUser()->email : '';
 
 		$this->_model = new EtModel(array(
 			'licenseKey'        => $this->_getLicenseKey(),
@@ -73,12 +77,14 @@ class Et
 			'localBuild'        => CRAFT_BUILD,
 			'localVersion'      => CRAFT_VERSION,
 			'localEdition'      => craft()->getEdition(),
-			'userEmail'         => craft()->userSession->getUser()->email,
+			'userEmail'         => $userEmail,
 			'track'             => CRAFT_TRACK,
+			'showBeta'          => craft()->config->get('showBetaUpdates'),
 			'serverInfo'        => array(
 				'extensions'    => get_loaded_extensions(),
 				'phpVersion'    => PHP_VERSION,
-				'mySqlVersion'  => craft()->db->getServerVersion()
+				'mySqlVersion'  => craft()->db->getServerVersion(),
+				'proc'          => function_exists('proc_open') ? 1 : 0,
 			),
 		));
 
@@ -157,6 +163,14 @@ class Et
 	}
 
 	/**
+	 * @param $handle
+	 */
+	public function setHandle($handle)
+	{
+		$this->_model->handle = $handle;
+	}
+
+	/**
 	 * @throws EtException|\Exception
 	 * @return EtModel|null
 	 */
@@ -185,9 +199,12 @@ class Et
 					'allow_redirects' => $this->getAllowRedirects(),
 				);
 
-				$request = $client->post($this->_endpoint, $options);
-
+				$request = $client->post($this->_endpoint, null, null, $options);
 				$request->setBody($data, 'application/json');
+
+				// Potentially long-running request, so close session to prevent session blocking on subsequent requests.
+				craft()->session->close();
+
 				$response = $request->send();
 
 				if ($response->isSuccessful())

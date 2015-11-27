@@ -19,7 +19,7 @@ class EtService extends BaseApplicationComponent
 	const Ping              = 'https://elliott.buildwithcraft.com/actions/elliott/app/ping';
 	const CheckForUpdates   = 'https://elliott.buildwithcraft.com/actions/elliott/app/checkForUpdates';
 	const TransferLicense   = 'https://elliott.buildwithcraft.com/actions/elliott/app/transferLicenseToCurrentDomain';
-	const GetEditionInfo    = 'https://elliott.buildwithcraft.com/actions/elliott/app/getEditionInfo';
+	const GetUpgradeInfo    = 'https://elliott.buildwithcraft.com/actions/elliott/app/getUpgradeInfo';
 	const PurchaseUpgrade   = 'https://elliott.buildwithcraft.com/actions/elliott/app/purchaseUpgrade';
 	const GetUpdateFileInfo = 'https://elliott.buildwithcraft.com/actions/elliott/app/getUpdateFileInfo';
 
@@ -51,17 +51,66 @@ class EtService extends BaseApplicationComponent
 
 		if ($etResponse)
 		{
-			$etResponse->data = new UpdateModel($etResponse->data);
+			$updateModel = new UpdateModel($etResponse->data);
+
+			// Convert the Craft release dates into localized times.
+			if (count($updateModel->app->releases) > 0)
+			{
+				foreach ($updateModel->app->releases as $key => $release)
+				{
+					// Have to use setAttribute here.
+					$updateModel->app->releases[$key]->setAttribute('localizedDate', $release->date->localeDate());
+				}
+			}
+
+			// Convert any plugin release dates into localized times.
+			if (count($updateModel->plugins) > 0)
+			{
+				foreach ($updateModel->plugins as $pluginKey => $plugin)
+				{
+					if (count($plugin->releases) > 0)
+					{
+						foreach ($plugin->releases as $pluginReleaseKey => $pluginRelease)
+						{
+							// Have to use setAttribute here.
+							$updateModel->plugins[$pluginKey]->releases[$pluginReleaseKey]->setAttribute('localizedDate', $pluginRelease->date->localeDate());
+						}
+					}
+				}
+			}
+
+			$etResponse->data = $updateModel;
+
 			return $etResponse;
 		}
 	}
 
 	/**
-	 * @return \Craft\EtModel|null
+	 * @param $handle
+	 *
+	 * @return EtModel|null
+	 * @throws EtException
+	 * @throws \Exception
 	 */
-	public function getUpdateFileInfo()
+	public function getUpdateFileInfo($handle)
 	{
 		$et = new Et(static::GetUpdateFileInfo);
+
+		if ($handle !== 'craft')
+		{
+			$et->setHandle($handle);
+			$plugin = craft()->plugins->getPlugin($handle);
+
+			if ($plugin)
+			{
+				$pluginUpdateModel = new PluginUpdateModel();
+				$pluginUpdateModel->class = $plugin->getClassHandle();
+				$pluginUpdateModel->localVersion = $plugin->getVersion();
+
+				$et->setData($pluginUpdateModel);
+			}
+		}
+
 		$etResponse = $et->phoneHome();
 
 		if ($etResponse)
@@ -73,10 +122,11 @@ class EtService extends BaseApplicationComponent
 	/**
 	 * @param string $downloadPath
 	 * @param string $md5
+	 * @param string $handle
 	 *
 	 * @return bool
 	 */
-	public function downloadUpdate($downloadPath, $md5)
+	public function downloadUpdate($downloadPath, $md5, $handle)
 	{
 		if (IOHelper::folderExists($downloadPath))
 		{
@@ -86,7 +136,35 @@ class EtService extends BaseApplicationComponent
 		$updateModel = craft()->updates->getUpdates();
 		$buildVersion = $updateModel->app->latestVersion.'.'.$updateModel->app->latestBuild;
 
-		$path = 'http://download.buildwithcraft.com/craft/'.$updateModel->app->latestVersion.'/'.$buildVersion.'/Patch/'.$updateModel->app->localBuild.'/'.$md5.'.zip';
+		if ($handle == 'craft')
+		{
+			$path = 'http://download.buildwithcraft.com/craft/'.$updateModel->app->latestVersion.'/'.$buildVersion.'/Patch/'.($handle == 'craft' ? $updateModel->app->localBuild : $updateModel->app->localVersion.'.'.$updateModel->app->localBuild).'/'.$md5.'.zip';
+		}
+		else
+		{
+			$localVersion = null;
+			$localBuild = null;
+			$latestVersion = null;
+			$latestBuild = null;
+
+			foreach ($updateModel->plugins as $plugin)
+			{
+				if (strtolower($plugin->class) == $handle)
+				{
+					$parts = explode('.', $plugin->localVersion);
+					$localVersion = $parts[0].'.'.$parts[1];
+					$localBuild = $parts[2];
+
+					$parts = explode('.', $plugin->latestVersion);
+					$latestVersion = $parts[0].'.'.$parts[1];
+					$latestBuild = $parts[2];
+
+					break;
+				}
+			}
+
+			$path = 'http://download.buildwithcraft.com/plugins/'.$handle.'/'.$latestVersion.'/'.$latestVersion.'.'.$latestBuild.'/Patch/'.$localVersion.'.'.$localBuild.'/'.$md5.'.zip';
+		}
 
 		$et = new Et($path, 240);
 		$et->setDestinationFileName($downloadPath);
@@ -147,10 +225,16 @@ class EtService extends BaseApplicationComponent
 	 *
 	 * @return EtModel|null
 	 */
-	public function fetchEditionInfo()
+	public function fetchUpgradeInfo()
 	{
-		$et = new Et(static::GetEditionInfo);
+		$et = new Et(static::GetUpgradeInfo);
 		$etResponse = $et->phoneHome();
+
+		if ($etResponse)
+		{
+			$etResponse->data = new UpgradeInfoModel($etResponse->data);
+		}
+
 		return $etResponse;
 	}
 

@@ -22,6 +22,11 @@ class ImageVariable
 	protected $path;
 
 	/**
+	 * @var string
+	 */
+	protected $url;
+
+	/**
 	 * @var
 	 */
 	protected $size;
@@ -36,9 +41,10 @@ class ImageVariable
 	 *
 	 * @return ImageVariable
 	 */
-	public function __construct($path)
+	public function __construct($path, $url = "")
 	{
 		$this->path = $path;
+		$this->url = $url;
 	}
 
 	/**
@@ -50,7 +56,7 @@ class ImageVariable
 	{
 		if (!isset($this->size))
 		{
-			$size = getimagesize($this->path);
+			$size = ImageHelper::getImageSize($this->path);
 			$this->size = array($size[0], $size[1]);
 		}
 
@@ -77,5 +83,15 @@ class ImageVariable
 	{
 		$size = $this->getSize();
 		return $size[1];
+	}
+
+	/**
+	 * Returns the image's URL.
+	 *
+	 * @return string
+	 */
+	public function getUrl()
+	{
+		return $this->url;
 	}
 }

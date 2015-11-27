@@ -67,6 +67,18 @@ class PathService extends BaseApplicationComponent
 	}
 
 	/**
+	 * Returns the path to the craft/storage/rebrand/ folder.
+	 *
+	 * @return string
+	 */
+	public function getRebrandPath()
+	{
+		$path = $this->getStoragePath().'rebrand/';
+		IOHelper::ensureFolderExists($path);
+		return $path;
+	}
+
+	/**
 	 * Returns the path to the craft/storage/runtime/ folder.
 	 *
 	 * @return string The path to the craft/storage/runtime/ folder.
@@ -188,6 +200,18 @@ class PathService extends BaseApplicationComponent
 	public function getAssetsIconsPath()
 	{
 		$path = $this->getAssetsPath().'icons/';
+		IOHelper::ensureFolderExists($path);
+		return $path;
+	}
+
+	/**
+	 * Returns the path to the craft/storage/runtime/pluginicons/ folder.
+	 *
+	 * @return string The path to the craft/storage/runtime/pluginicons/ folder.
+	 */
+	public function getPluginIconsPath()
+	{
+		$path = $this->getRuntimePath().'pluginicons/';
 		IOHelper::ensureFolderExists($path);
 		return $path;
 	}

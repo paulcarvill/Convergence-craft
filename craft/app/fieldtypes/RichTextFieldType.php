@@ -123,11 +123,25 @@ class RichTextFieldType extends BaseFieldType
 		$this->_includeFieldResources($configJs);
 
 		$id = craft()->templates->formatInputId($name);
+		$localeId = (isset($this->element) ? $this->element->locale : craft()->language);
+
+		if (isset($this->model) && $this->model->translatable)
+		{
+			$locale = craft()->i18n->getLocaleData($localeId);
+			$orientation = '"'.$locale->getOrientation().'"';
+		}
+		else
+		{
+			$orientation = 'Craft.orientation';
+		}
 
 		craft()->templates->includeJs('new Craft.RichTextInput(' .
 			'"'.craft()->templates->namespaceInputId($id).'", ' .
 			JsonHelper::encode($this->_getSectionSources()).', ' .
-			'"'.(isset($this->element) ? $this->element->locale : craft()->language).'", ' .
+			JsonHelper::encode($this->_getCategorySources()).', ' .
+			JsonHelper::encode($this->_getAssetSources()).', ' .
+			'"'.$localeId.'", ' .
+			$orientation.', ' .
 			$configJs.', ' .
 			'"'.static::$_redactorLang.'"' .
 		');');
@@ -207,6 +221,9 @@ class RichTextFieldType extends BaseFieldType
 			return $matches[1].$matches[2].'{'.$matches[3].':'.$matches[4].(!empty($matches[5]) ? $matches[5] : ':url').'}'.$matches[2];
 		}, $value);
 
+		// Encode any 4-byte UTF-8 characters.
+		$value = StringHelper::encodeMb4($value);
+
 		return $value;
 	}
 
@@ -232,20 +249,14 @@ class RichTextFieldType extends BaseFieldType
 
 		if ($postContentSize > $maxDbColumnSize)
 		{
-			// Give ourselves 10% wiggle room.
-			$maxDbColumnSize = ceil($maxDbColumnSize * 0.9);
-
-			if ($postContentSize > $maxDbColumnSize)
-			{
-				return Craft::t('{attribute} is too long.', array('attribute' => Craft::t($this->model->name)));
-			}
+			return Craft::t('{attribute} is too long.', array('attribute' => Craft::t($this->model->name)));
 		}
 
 		return true;
 	}
 
 	/**
-	 * @inheritDoc BaseFieldType::getStaticHtml()
+	 * @inheritDoc IFieldType::getStaticHtml()
 	 *
 	 * @param mixed $value
 	 *
@@ -309,6 +320,43 @@ class RichTextFieldType extends BaseFieldType
 	}
 
 	/**
+	 * Get available category sources.
+	 *
+	 * @return array
+	 */
+	private function _getCategorySources()
+	{
+		$sources = array();
+		$categoryGroups = craft()->categories->getAllGroups();
+
+		foreach ($categoryGroups as $categoryGroup)
+		{
+			if ($categoryGroup->hasUrls)
+			{
+				$sources[] = 'group:'.$categoryGroup->id;
+			}
+		}
+
+		return $sources;
+	}
+
+	/**
+	 * @return array
+	 */
+	private function _getAssetSources()
+	{
+		$sources = array();
+		$assetSourceIds = craft()->assetSources->getAllSourceIds();
+
+		foreach ($assetSourceIds as $assetSourceId)
+		{
+			$sources[] = 'asset:'.$assetSourceId;
+		}
+
+		return $sources;
+	}
+
+	/**
 	 * Returns the Redactor config JS used by this field.
 	 *
 	 * @return string
@@ -345,11 +393,12 @@ class RichTextFieldType extends BaseFieldType
 		//craft()->templates->includeJsResource('lib/redactor/redactor'.(craft()->config->get('useCompressedJs') ? '.min' : '').'.js');
 
 		$this->_maybeIncludeRedactorPlugin($configJs, 'fullscreen', false);
+		$this->_maybeIncludeRedactorPlugin($configJs, 'source', false);
 		$this->_maybeIncludeRedactorPlugin($configJs, 'table', false);
 		$this->_maybeIncludeRedactorPlugin($configJs, 'video', false);
 		$this->_maybeIncludeRedactorPlugin($configJs, 'pagebreak', true);
 
-		craft()->templates->includeTranslations('Insert image', 'Insert URL', 'Choose image', 'Link', 'Link to an entry', 'Insert link', 'Unlink', 'Link to an asset');
+		craft()->templates->includeTranslations('Insert image', 'Insert URL', 'Choose image', 'Link', 'Link to an entry', 'Insert link', 'Unlink', 'Link to an asset', 'Link to a category');
 
 		craft()->templates->includeJsResource('js/RichTextInput.js');
 
@@ -361,7 +410,15 @@ class RichTextFieldType extends BaseFieldType
 			{
 				// Otherwise try to load the language (without the territory half)
 				$languageId = craft()->locale->getLanguageID(craft()->language);
-				$this->_includeRedactorLangFile($languageId);
+
+				if (!$this->_includeRedactorLangFile($languageId))
+				{
+					// If it's Norwegian Bokmål/Nynorsk, add plain ol' Norwegian as a fallback
+					if ($languageId === 'nb' || $languageId === 'nn')
+					{
+						$this->_includeRedactorLangFile('no');
+					}
+				}
 			}
 		}
 	}

@@ -229,7 +229,8 @@ class UserModel extends BaseElementModel
 	{
 		if ($this->photo)
 		{
-			return UrlHelper::getResourceUrl('userphotos/'.$this->username.'/'.$size.'/'.$this->photo);
+			$username = AssetsHelper::cleanAssetName($this->username, false);
+			return UrlHelper::getResourceUrl('userphotos/'.$username.'/'.$size.'/'.$this->photo);
 		}
 	}
 
@@ -243,9 +244,10 @@ class UserModel extends BaseElementModel
 	public function getThumbUrl($size = 100)
 	{
 		$url = $this->getPhotoUrl($size);
+
 		if (!$url)
 		{
-			$url = UrlHelper::getResourceUrl('defaultuserphoto/'.$size);
+			$url = UrlHelper::getResourceUrl('defaultuserphoto');
 		}
 
 		return $url;
@@ -339,10 +341,16 @@ class UserModel extends BaseElementModel
 	{
 		if ($this->status == UserStatus::Locked)
 		{
-			$cooldownEnd = clone $this->lockoutDate;
-			$cooldownEnd->add(new DateInterval(craft()->config->get('cooldownDuration')));
+			// There was an old bug that where a user's lockoutDate could be null if they've
+			// passed their cooldownDuration already, but there account status is still locked.
+			// If that's the case, just let it return null as if they are past the cooldownDuration.
+			if ($this->lockoutDate)
+			{
+				$cooldownEnd = clone $this->lockoutDate;
+				$cooldownEnd->add(new DateInterval(craft()->config->get('cooldownDuration')));
 
-			return $cooldownEnd;
+				return $cooldownEnd;
+			}
 		}
 	}
 
@@ -460,7 +468,7 @@ class UserModel extends BaseElementModel
 			'email'                      => array(AttributeType::Email, 'required' => !$requireUsername),
 			'password'                   => AttributeType::String,
 			'preferredLocale'            => AttributeType::Locale,
-			'weekStartDay'               => array(AttributeType::Number, 'default' => 0),
+			'weekStartDay'               => array(AttributeType::Number, 'default' => craft()->config->get('defaultWeekStartDay')),
 			'admin'                      => AttributeType::Bool,
 			'client'                     => AttributeType::Bool,
 			'locked'                     => AttributeType::Bool,

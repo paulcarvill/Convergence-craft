@@ -21,7 +21,6 @@ module.exports = (grunt) ->
       public: 'public'
 
       # Bower components
-      bootstrap: 'bower/bootstrap-sass-official/assets'
       jquery: 'bower/jquery/dist'
 
     # Clean - Empties build directories
@@ -57,26 +56,18 @@ module.exports = (grunt) ->
       options:
         sourceMap: true
         stripBanners: true
-      bootstrap_js:
+      all_js:
         files: {
-          '<%= path.public %>/assets/js/lib/bootstrap.js' : [
-            # Comment out the components that we aren't using
-            # '<%= path.bootstrap %>/javascripts/bootstrap/affix.js'
-            # '<%= path.bootstrap %>/javascripts/bootstrap/alert.js'
-            # '<%= path.bootstrap %>/javascripts/bootstrap/button.js'
-            # '<%= path.bootstrap %>/javascripts/bootstrap/carousel.js'
-            # '<%= path.bootstrap %>/javascripts/bootstrap/collapse.js'
-            # '<%= path.bootstrap %>/javascripts/bootstrap/dropdown.js'
-            # '<%= path.bootstrap %>/javascripts/bootstrap/tab.js'
-            '<%= path.bootstrap %>/javascripts/bootstrap/transition.js'
-            # '<%= path.bootstrap %>/javascripts/bootstrap/scrollspy.js'
-            # '<%= path.bootstrap %>/javascripts/bootstrap/modal.js'
-            # '<%= path.bootstrap %>/javascripts/bootstrap/tooltip.js'
-            # '<%= path.bootstrap %>/javascripts/bootstrap/popover.js'
+          '<%= path.public %>/assets/js/all.js' : [
+            '<%= path.dev %>/assets/js/jquery.min.js',
+            '<%= path.dev %>/assets/js/_waypoints.min.js',
+            '<%= path.dev %>/assets/js/mailchimp.js',
+            '<%= path.dev %>/assets/js/modernizr.js',
+            '<%= path.dev %>/assets/js/picturefill.min.js',
+            '<%= path.dev %>/assets/js/moment.min.js',
+            '<%= path.dev %>/assets/js/waypoints-sticky.min.js'
           ]
         }
-      jquery:
-        files: '<%= path.public %>/assets/js/lib/jquery.js': '<%= path.jquery %>/jquery.min.js'
 
     # Copy files from A to B
     # ------------------------------------------------------------------------ #
@@ -124,6 +115,13 @@ module.exports = (grunt) ->
           src: '**/*'
           dest: '<%= path.craft %>/templates'
         ]
+      js:
+        files: [
+          expand: true
+          cwd: '<%= path.dev %>/assets/js'
+          src: '**/*'
+          dest: '<%= path.public %>/assets/js'
+        ]
 
     # HTMLmin - Minify HTML files
     # ------------------------------------------------------------------------ #
@@ -160,8 +158,6 @@ module.exports = (grunt) ->
           dest: '<%= path.public %>/assets/css'
           ext: '.css'
         ]
-      bootstrap:
-        files: ['<%= path.public %>/assets/css/bootstrap.css': '<%= path.dev %>/assets/css/bootstrap.sass']
 
     # Uglify - JS compression
     # ------------------------------------------------------------------------ #
@@ -171,10 +167,8 @@ module.exports = (grunt) ->
           drop_console: false
         preserveComments: false
       scripts:
-        files: '<%= path.public %>/assets/js/scripts.min.js': [
-          '<%= path.public %>/assets/js/lib/jquery.js'
-          '<%= path.public %>/assets/js/lib/bootstrap.js'
-          '<%= path.public %>/assets/js/scripts.js'
+        files: '<%= path.public %>/assets/js/all.min.js': [
+          '<%= path.public %>/assets/js/all.js'
         ]
 
     # Watch - Run tasks when files are modified
@@ -256,11 +250,11 @@ module.exports = (grunt) ->
     'copy:svg'
     'copy:fonts'
     'copy:templates'
+    'copy:js'
 
     # Generate scripts
     'coffee'
-    'concat:bootstrap_js'
-    'concat:jquery'
+    'concat:all_js'
     'uglify:scripts'
 
     # Generate styles

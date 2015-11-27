@@ -1,0 +1,57 @@
+<div class="share">
+	<div class="blog">
+		{% if event %}
+		<div id="venue-location">
+      		<a href="http://maps.google.com?q=<%= @event.venue.location %>" target="_blank"><img src="https://maps.googleapis.com/maps/api/staticmap?center=<%= @event.venue.location %>&zoom=16&size=394x308&maptype=roadmap&markers=color:blue%7Clabel:S%7C40.702147,-74.015794&markers=color:green%7Clabel:G%7C40.711614,-74.012318&markers=color:red%7Clabel:C%7C40.718217,-73.998284&key=AIzaSyAQi0JKj_N-SNXMYHTzjlRS0jcP-Se5oyY&style=saturation:-100|gamma:0.23&markers=color:blue%7C<%=@event.venue.location%>" />
+      		</a>
+    	</div>
+        {% endif %}
+
+    	<div class="sharing">
+			<h4>SHARE</h4>
+			<a id="cvgfb" href="https://www.facebook.com/sharer/sharer.php?u={{ craft.request.url }}">
+				<svg x="0px" y="0px" width="32px" height="32px" viewBox="0 0 7.68 7.68" enable-background="new 0 0 7.68 7.68" xml:space="preserve">
+					<g id="Layer_17">
+						<circle fill-rule="evenodd" clip-rule="evenodd" fill="#1A6AA5" cx="3.85" cy="3.85" r="3.85"></circle>
+						<g id="Shape_2_3_">
+							<g>
+								<path fill="#FFFFFF" d="M4.123,3.195l0.001-0.33c0-0.173,0.011-0.265,0.242-0.265h0.31V1.94H4.181
+						c-0.595,0-0.732,0.328-0.732,0.867L3.45,3.195H3v0.66H3.45v1.915h0.673V3.855h0.49l0.066-0.66H4.123z"/>
+								</g>
+							</g>
+						</g>
+				</svg>
+			</a>
+
+			<a href="https://twitter.com/intent/tweet?text=Convergence%20%E2%80%94%20{% if entries %}Music%20%2B%20Art%20%2B%20Technology%0A{%elseif entry%}{{entry.title| url_encode}}{% endif%}&url={{ craft.request.url|url_encode}}&via=ConvergenceLDN">
+				<svg x="0px" y="0px" width="32px" height="32px" viewBox="0 0 7.68 7.68" enable-background="new 0 0 7.68 7.68" xml:space="preserve">
+					<g id="Layer_17">
+						<circle fill-rule="evenodd" clip-rule="evenodd" fill="#00B4F0" cx="3.85" cy="3.85" r="3.85"></circle>
+						<g id="Shape_1_3_">
+							<g>
+								<path fill="#FFFFFF" d="M6.12,2.372c-0.168,0.077-0.349,0.13-0.538,0.153c0.193-0.121,0.342-0.311,0.412-0.538
+										C5.813,2.1,5.612,2.18,5.399,2.223C5.229,2.035,4.985,1.916,4.717,1.916c-0.517,0-0.936,0.436-0.936,0.972
+										c0,0.076,0.008,0.15,0.024,0.222C3.028,3.068,2.338,2.682,1.876,2.094C1.796,2.238,1.75,2.404,1.75,2.582
+										c0,0.338,0.165,0.635,0.416,0.809C2.013,3.386,1.869,3.342,1.742,3.27v0.012c0,0.471,0.322,0.863,0.75,0.953
+										C2.414,4.256,2.332,4.268,2.246,4.268c-0.06,0-0.119-0.006-0.176-0.017c0.12,0.386,0.465,0.666,0.875,0.674
+										c-0.32,0.261-0.724,0.416-1.162,0.416c-0.076,0-0.15-0.005-0.223-0.014c0.414,0.275,0.906,0.437,1.434,0.437
+										c1.722,0,2.662-1.48,2.662-2.764c0-0.042-0.001-0.084-0.003-0.125C5.836,2.737,5.994,2.566,6.12,2.372z"/>
+							</g>
+						</g>
+					</g>
+				</svg>
+			</a>
+			<!-- <h4>TOPICS</h4>
+			<% if @blog %>
+				<% @blog.tags.each do |tag| %>
+					<span><%= link_to tag.name, blogs_url(:tag => tag.name) %></span>
+				<% end %>
+			<% end %>
+			<% if @event %>
+				<% @event.tags.each do |tag| %>
+					<span><%= link_to tag.name, events_url(:tag => tag.name) %></span>
+				<% end %>
+			<% end %> -->
+		</div>
+	</div>
+</div>

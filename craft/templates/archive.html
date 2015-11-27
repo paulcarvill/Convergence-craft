@@ -1,0 +1,19 @@
+{% set title = "2015 Archive" %}
+{% set events = craft.entries.section('events').order('startTime desc').startTime('< 2016') %}
+
+
+
+{% set bodyClasses = "archive" %}
+{% extends "_layouts/default.html" %}
+
+{% block page_content %}
+<div class="events row">
+  <div>
+    <div class="event-container" style="height: auto; background: none; width: auto">
+      <h1>2015 archive</h1>
+    </div>
+  </div>
+</div>
+
+{% include "_partials/eventsrow" %}
+{% endblock %}

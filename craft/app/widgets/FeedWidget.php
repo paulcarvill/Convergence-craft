@@ -47,13 +47,23 @@ class FeedWidget extends BaseWidget
 	}
 
 	/**
+	 * @inheritDoc IWidget::getIconPath()
+	 *
+	 * @return string
+	 */
+	public function getIconPath()
+	{
+		return craft()->path->getResourcesPath().'images/widgets/feed.svg';
+	}
+
+	/**
 	 * @inheritDoc IWidget::getTitle()
 	 *
 	 * @return string
 	 */
 	public function getTitle()
 	{
-		return $this->settings->title;
+		return Craft::t($this->settings->title);
 	}
 
 	/**

@@ -127,11 +127,19 @@ class EntriesController extends BaseEntriesController
 
 			if ($parentId === null && $variables['entry']->id)
 			{
-				$parentIds = $variables['entry']->getAncestors(1)->status(null)->localeEnabled(null)->ids();
-
-				if ($parentIds)
+				// Is it already set on the model (e.g. if we're loading a draft)?
+				if ($variables['entry']->parentId)
 				{
-					$parentId = $parentIds[0];
+					$parentId = $variables['entry']->parentId;
+				}
+				else
+				{
+					$parentIds = $variables['entry']->getAncestors(1)->status(null)->localeEnabled(null)->ids();
+
+					if ($parentIds)
+					{
+						$parentId = $parentIds[0];
+					}
 				}
 			}
 
@@ -197,8 +205,7 @@ class EntriesController extends BaseEntriesController
 		}
 		else
 		{
-			$variables['docTitle'] = Craft::t($variables['entry']->title);
-			$variables['title'] = Craft::t($variables['entry']->title);
+			$variables['docTitle'] = $variables['title'] = $variables['entry']->title;
 
 			if (craft()->getEdition() >= Craft::Client && $variables['entry']->getClassHandle() != 'Entry')
 			{
@@ -322,6 +329,10 @@ class EntriesController extends BaseEntriesController
 			($variables['entry']->authorId == $currentUser->id && $currentUser->can('deleteEntries'.$variables['permissionSuffix'])) ||
 			($variables['entry']->authorId != $currentUser->id && $currentUser->can('deletePeerEntries'.$variables['permissionSuffix']))
 		);
+
+		// Full page form variables
+		$variables['fullPageForm'] = true;
+		$variables['saveShortcutRedirect'] = $variables['continueEditingUrl'];
 
 		// Include translations
 		craft()->templates->includeTranslations('Live Preview');
@@ -752,6 +763,16 @@ class EntriesController extends BaseEntriesController
 				else
 				{
 					$variables['entry'] = craft()->entries->getEntryById($variables['entryId'], $variables['localeId']);
+
+					if ($variables['entry'] && craft()->getEdition() == Craft::Pro)
+					{
+						$versions = craft()->entryRevisions->getVersionsByEntryId($variables['entryId'], $variables['localeId'], 1, true);
+
+						if (isset($versions[0]))
+						{
+							$variables['entry']->revisionNotes = $versions[0]->revisionNotes;
+						}
+					}
 				}
 
 				if (!$variables['entry'])

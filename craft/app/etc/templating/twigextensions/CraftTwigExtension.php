@@ -28,13 +28,20 @@ class CraftTwigExtension extends \Twig_Extension
 			new Exit_TokenParser(),
 			new Header_TokenParser(),
 			new Hook_TokenParser(),
-			new IncludeResource_TokenParser('includeCss'),
+			new IncludeResource_TokenParser('includeCss', true),
+			new IncludeResource_TokenParser('includecss', true),
 			new IncludeResource_TokenParser('includeCssFile'),
+			new IncludeResource_TokenParser('includecssfile'),
 			new IncludeResource_TokenParser('includeCssResource'),
-			new IncludeResource_TokenParser('includeHiResCss'),
-			new IncludeResource_TokenParser('includeJs'),
+			new IncludeResource_TokenParser('includecssresource'),
+			new IncludeResource_TokenParser('includeHiResCss', true),
+			new IncludeResource_TokenParser('includehirescss', true),
+			new IncludeResource_TokenParser('includeJs', true),
+			new IncludeResource_TokenParser('includejs', true),
 			new IncludeResource_TokenParser('includeJsFile'),
+			new IncludeResource_TokenParser('includejsfile'),
 			new IncludeResource_TokenParser('includeJsResource'),
+			new IncludeResource_TokenParser('includejsresource'),
 			new IncludeTranslations_TokenParser(),
 			new Namespace_TokenParser(),
 			new Nav_TokenParser(),
@@ -45,6 +52,8 @@ class CraftTwigExtension extends \Twig_Extension
 			new RequireLogin_TokenParser(),
 			new RequirePermission_TokenParser(),
 			new Switch_TokenParser(),
+
+			new DeprecatedTag_TokenParser('endpaginate'),
 		);
 	}
 
@@ -60,14 +69,18 @@ class CraftTwigExtension extends \Twig_Extension
 		$markdownFilter = new \Twig_Filter_Method($this, 'markdownFilter');
 
 		return array(
+			'camel'              => new \Twig_Filter_Method($this, 'camelFilter'),
 			'currency'           => new \Twig_Filter_Function('\Craft\craft()->numberFormatter->formatCurrency'),
 			'date'               => new \Twig_Filter_Method($this, 'dateFilter', array('needs_environment' => true)),
 			'datetime'           => new \Twig_Filter_Function('\Craft\craft()->dateFormatter->formatDateTime'),
 			'filesize'           => new \Twig_Filter_Function('\Craft\craft()->formatter->formatSize'),
 			'filter'             => new \Twig_Filter_Function('array_filter'),
 			'group'              => new \Twig_Filter_Method($this, 'groupFilter'),
+			'hash'               => new \Twig_Filter_Function('\Craft\craft()->security->hashData'),
 			'indexOf'            => new \Twig_Filter_Method($this, 'indexOfFilter'),
 			'intersect'          => new \Twig_Filter_Function('array_intersect'),
+			'json_encode'        => new \Twig_Filter_Method($this, 'jsonEncodeFilter'),
+			'kebab'              => new \Twig_Filter_Method($this, 'kebabFilter'),
 			'lcfirst'            => new \Twig_Filter_Method($this, 'lcfirstFilter'),
 			'literal'            => new \Twig_Filter_Method($this, 'literalFilter'),
 			'markdown'           => $markdownFilter,
@@ -78,12 +91,15 @@ class CraftTwigExtension extends \Twig_Extension
 			'namespaceInputId'   => new \Twig_Filter_Function('\Craft\craft()->templates->namespaceInputId'),
 			'number'             => new \Twig_Filter_Function('\Craft\craft()->numberFormatter->formatDecimal'),
 			'parseRefs'          => new \Twig_Filter_Method($this, 'parseRefsFilter'),
+			'pascal'             => new \Twig_Filter_Method($this, 'pascalFilter'),
 			'percentage'         => new \Twig_Filter_Function('\Craft\craft()->numberFormatter->formatPercentage'),
 			'replace'            => new \Twig_Filter_Method($this, 'replaceFilter'),
+			'snake'              => new \Twig_Filter_Method($this, 'snakeFilter'),
 			'translate'          => $translateFilter,
 			't'                  => $translateFilter,
 			'ucfirst'            => new \Twig_Filter_Method($this, 'ucfirstFilter'),
 			'ucwords'            => new \Twig_Filter_Function('ucwords'),
+			'values'             => new \Twig_Filter_Function('array_values'),
 			'without'            => new \Twig_Filter_Method($this, 'withoutFilter'),
 		);
 	}
@@ -110,6 +126,78 @@ class CraftTwigExtension extends \Twig_Extension
 	public function lcfirstFilter($string)
 	{
 		return StringHelper::lowercaseFirst($string);
+	}
+
+	/**
+	 * kebab-cases a string.
+	 *
+	 * @param string $string The string
+	 * @param string $glue The string used to glue the words together (default is a hyphen)
+	 * @param boolean $lower Whether the string should be lowercased (default is true)
+	 * @param boolean $removePunctuation Whether punctuation marks should be removed (default is true)
+	 *
+	 * @return string
+	 */
+	public function kebabFilter($string, $glue = '-', $lower = true, $removePunctuation = true)
+	{
+		return StringHelper::toKebabCase($string, $glue, $lower, $removePunctuation);
+	}
+
+	/**
+	 * camelCases a string.
+	 *
+	 * @param string $string The string
+	 *
+	 * @return string
+	 */
+	public function camelFilter($string)
+	{
+		return StringHelper::toCamelCase($string);
+	}
+
+	/**
+	 * PascalCases a string.
+	 *
+	 * @param string $string The string
+	 *
+	 * @return string
+	 */
+	public function pascalFilter($string)
+	{
+		return StringHelper::toPascalCase($string);
+	}
+
+	/**
+	 * snake_cases a string.
+	 *
+	 * @param string $string The string
+	 *
+	 * @return string
+	 */
+	public function snakeFilter($string)
+	{
+		return StringHelper::toSnakeCase($string);
+	}
+
+	/**
+	 * This method will JSON encode a variable. We're overriding Twig's default implementation to set some stricter
+	 * encoding options on text/html/xml requests.
+	 *
+	 * @param mixed    $value   The value to JSON encode.
+	 * @param null|int $options Either null or a bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP,
+	 *                          JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES,
+	 *                          JSON_FORCE_OBJECT
+	 *
+	 * @return mixed The JSON encoded value.
+	 */
+	public function jsonEncodeFilter($value, $options = null)
+	{
+		if ($options === null && (in_array(HeaderHelper::getMimeType(), array('text/html', 'application/xhtml+xml'))))
+		{
+			$options = JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_QUOT;
+		}
+
+		return twig_jsonencode_filter($value, $options);
 	}
 
 	/**
@@ -171,7 +259,7 @@ class CraftTwigExtension extends \Twig_Extension
 			return strtr($str, $search);
 		}
 		// Is this a regular expression?
-		else if (preg_match('/^\/(.+)\/$/', $search))
+		else if (preg_match('/^\/.+\/[a-zA-Z]*$/', $search))
 		{
 			return preg_replace($search, $replace, $str);
 		}
@@ -401,11 +489,12 @@ class CraftTwigExtension extends \Twig_Extension
 		$globals['craft'] = $craftVariable;
 		$globals['blx']   = $craftVariable;
 
-		$globals['now'] = DateTimeHelper::currentUTCDateTime();
+		$globals['now'] = new DateTime(null, new \DateTimeZone(craft()->getTimeZone()));
 		$globals['loginUrl'] = UrlHelper::getUrl(craft()->config->getLoginPath());
 		$globals['logoutUrl'] = UrlHelper::getUrl(craft()->config->getLogoutPath());
+		$globals['isInstalled'] = craft()->isInstalled();
 
-		if (craft()->isInstalled() && !craft()->updates->isCraftDbMigrationNeeded())
+		if ($globals['isInstalled'] && !craft()->updates->isCraftDbMigrationNeeded())
 		{
 			$globals['siteName'] = craft()->getSiteName();
 			$globals['siteUrl'] = craft()->getSiteUrl();

@@ -1,12 +1,5 @@
 <?php
 
-// Initially set it here.  WebApp->init() will check devMode and override appropriately.
-error_reporting(E_ALL & ~E_STRICT);
-ini_set('display_errors', 1);
-
-ini_set('log_errors', 1);
-ini_set('error_log', CRAFT_STORAGE_PATH.'runtime/logs/phperrors.log');
-
 $configArray = array(
 
 	// autoloading model and component classes
@@ -36,6 +29,7 @@ $configArray = array(
 		'app.controllers.CategoriesController',
 		'app.controllers.DashboardController',
 		'app.controllers.ElementIndexController',
+		'app.controllers.ElementIndexSettingsController',
 		'app.controllers.ElementsController',
 		'app.controllers.EmailMessagesController',
 		'app.controllers.EntriesController',
@@ -97,7 +91,7 @@ $configArray = array(
 		'app.enums.LogLevel',
 		'app.enums.PatchManifestFileAction',
 		'app.enums.PeriodType',
-		'app.enums.PluginVersionUpdateStatus',
+		'app.enums.PluginUpdateStatus',
 		'app.enums.RequirementResult',
 		'app.enums.SectionType',
 		'app.enums.TaskStatus',
@@ -136,17 +130,21 @@ $configArray = array(
 		'app.etc.errors.EtException',
 		'app.etc.errors.Exception',
 		'app.etc.errors.HttpException',
+		'app.etc.errors.InvalidSubpathException',
 		'app.etc.errors.TemplateLoaderException',
 		'app.etc.et.Et',
+		'app.etc.events.ElementActionEvent',
 		'app.etc.events.Event',
 		'app.etc.i18n.LocaleData',
 		'app.etc.i18n.NumberFormatter',
 		'app.etc.i18n.PhpMessageSource',
+		'app.etc.image.BaseImage',
+		'app.etc.image.Image',
+		'app.etc.image.SvgImage',
 		'app.etc.io.BaseIO',
 		'app.etc.io.File',
 		'app.etc.io.Folder',
 		'app.etc.io.IZip',
-		'app.etc.io.Image',
 		'app.etc.io.PclZip',
 		'app.etc.io.Zip',
 		'app.etc.io.ZipArchive',
@@ -166,9 +164,12 @@ $configArray = array(
 		'app.etc.state.StatePersister',
 		'app.etc.templating.BaseTemplate',
 		'app.etc.templating.StringTemplate',
+		'app.etc.templating.TwigEnvironment',
+		'app.etc.templating.TwigParser',
 		'app.etc.templating.twigextensions.Cache_Node',
 		'app.etc.templating.twigextensions.Cache_TokenParser',
 		'app.etc.templating.twigextensions.CraftTwigExtension',
+		'app.etc.templating.twigextensions.DeprecatedTag_TokenParser',
 		'app.etc.templating.twigextensions.Exit_Node',
 		'app.etc.templating.twigextensions.Exit_TokenParser',
 		'app.etc.templating.twigextensions.Header_Node',
@@ -217,6 +218,7 @@ $configArray = array(
 		'app.fieldtypes.DropdownFieldType',
 		'app.fieldtypes.EntriesFieldType',
 		'app.fieldtypes.IFieldType',
+		'app.fieldtypes.IPreviewableFieldType',
 		'app.fieldtypes.LightswitchFieldType',
 		'app.fieldtypes.MatrixFieldType',
 		'app.fieldtypes.MultiOptionsFieldData',
@@ -239,6 +241,7 @@ $configArray = array(
 		'app.helpers.DateTimeHelper',
 		'app.helpers.DbHelper',
 		'app.helpers.ElementHelper',
+		'app.helpers.FileHelper',
 		'app.helpers.HeaderHelper',
 		'app.helpers.HtmlHelper',
 		'app.helpers.IOHelper',
@@ -309,7 +312,9 @@ $configArray = array(
 		'app.models.TagModel',
 		'app.models.TaskModel',
 		'app.models.UpdateModel',
+		'app.models.UpgradeInfoModel',
 		'app.models.UpgradePurchaseModel',
+		'app.models.UrlModel',
 		'app.models.UserGroupModel',
 		'app.models.UserModel',
 		'app.models.UsernameModel',
@@ -323,6 +328,7 @@ $configArray = array(
 		'app.records.CategoryGroupLocaleRecord',
 		'app.records.CategoryGroupRecord',
 		'app.records.CategoryRecord',
+		'app.records.ElementIndexSettingsRecord',
 		'app.records.ElementLocaleRecord',
 		'app.records.ElementRecord',
 		'app.records.EmailMessageRecord',
@@ -370,6 +376,7 @@ $configArray = array(
 		'app.services.ContentService',
 		'app.services.DashboardService',
 		'app.services.DeprecatorService',
+		'app.services.ElementIndexesService',
 		'app.services.ElementsService',
 		'app.services.EmailMessagesService',
 		'app.services.EmailService',
@@ -411,8 +418,10 @@ $configArray = array(
 		'app.tasks.FindAndReplaceTask',
 		'app.tasks.GeneratePendingTransformsTask',
 		'app.tasks.ITask',
+		'app.tasks.LocalizeRelationsTask',
 		'app.tasks.ResaveAllElementsTask',
 		'app.tasks.ResaveElementsTask',
+		'app.tasks.UpdateElementSlugsAndUrisTask',
 		'app.tests.BaseTest',
 		'app.tests.TestApplication',
 		'app.tests.helpers.StubHelper',
@@ -445,11 +454,12 @@ $configArray = array(
 		'app.variables.AppVariable',
 		'app.variables.AssetSourceTypeVariable',
 		'app.variables.BaseComponentTypeVariable',
+		'app.variables.CategoryGroupsVariable',
 		'app.variables.ConfigVariable',
 		'app.variables.CpVariable',
 		'app.variables.CraftVariable',
-		'app.variables.DashboardVariable',
 		'app.variables.DeprecatorVariable',
+		'app.variables.ElementIndexesVariable',
 		'app.variables.ElementTypeVariable',
 		'app.variables.ElementsVariable',
 		'app.variables.EmailMessagesVariable',
@@ -461,7 +471,6 @@ $configArray = array(
 		'app.variables.HttpRequestVariable',
 		'app.variables.ImageVariable',
 		'app.variables.LocalizationVariable',
-		'app.variables.LogoVariable',
 		'app.variables.PaginateVariable',
 		'app.variables.PluginVariable',
 		'app.variables.PluginsVariable',
@@ -475,7 +484,6 @@ $configArray = array(
 		'app.variables.UserGroupsVariable',
 		'app.variables.UserPermissionsVariable',
 		'app.variables.UserSessionVariable',
-		'app.variables.WidgetTypeVariable',
 		'app.widgets.BaseWidget',
 		'app.widgets.FeedWidget',
 		'app.widgets.GetHelpWidget',
@@ -517,8 +525,7 @@ $cpRoutes['categories/(?P<groupHandle>{handle})']                               
 $cpRoutes['categories/(?P<groupHandle>{handle})/new']                             = array('action' => 'categories/editCategory');
 $cpRoutes['categories/(?P<groupHandle>{handle})/(?P<categoryId>\d+)(?:-{slug})?'] = array('action' => 'categories/editCategory');
 
-$cpRoutes['dashboard/settings/new']                                               = 'dashboard/settings/_widgetsettings';
-$cpRoutes['dashboard/settings/(?P<widgetId>\d+)']                                 = 'dashboard/settings/_widgetsettings';
+$cpRoutes['dashboard']                                               			  = array('action' => 'dashboard/index');
 
 $cpRoutes['entries/(?P<sectionHandle>{handle})']                                  = 'entries';
 $cpRoutes['entries/(?P<sectionHandle>{handle})/new']                              = array('action' => 'entries/editEntry');
@@ -611,6 +618,7 @@ $components['content']['class']              = 'Craft\ContentService';
 $components['dashboard']['class']            = 'Craft\DashboardService';
 $components['deprecator']['class']           = 'Craft\DeprecatorService';
 $components['email']['class']                = 'Craft\EmailService';
+$components['elementIndexes']['class']       = 'Craft\ElementIndexesService';
 $components['elements']['class']             = 'Craft\ElementsService';
 $components['entries']['class']              = 'Craft\EntriesService';
 $components['et']['class']                   = 'Craft\EtService';
@@ -706,7 +714,6 @@ $components['urlManager']['pathParam'] = 'p';
 
 $components['errorHandler'] = array(
 	'class' => 'Craft\ErrorHandler',
-	'errorAction' => 'templates/renderError'
 );
 
 $components['fileCache']['class'] = 'Craft\FileCache';
@@ -730,7 +737,6 @@ $components['log']['routes'] = array(
 $components['httpSession']['autoStart']   = true;
 $components['httpSession']['cookieMode']  = 'only';
 $components['httpSession']['class']       = 'Craft\HttpSessionService';
-$components['httpSession']['sessionName'] = 'CraftSessionId';
 
 $components['userSession']['class'] = 'Craft\UserSessionService';
 $components['userSession']['allowAutoLogin']  = true;

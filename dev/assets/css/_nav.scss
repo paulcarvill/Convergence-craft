@@ -42,8 +42,6 @@ nav p {
 nav div {
   height: 48px;
   padding-top: 17px;
-  margin-left: 96px;
-  padding-left: 30px;
   background-color: $maingrey;
   float: right;
 }
@@ -137,6 +135,10 @@ body:not(.pages-index) #splash-shift {
   nav .logo {
     background-color: #e7e8e7;
     border-bottom: none;
+  }
+
+  nav div {
+    width: 100%;
   }
 
   body:not(.pages-index) nav,

@@ -30,12 +30,18 @@ class FieldRecord extends BaseRecord
 		'locale',
 		'parents',
 		'siblings',
+		'sortOrder',
 		'uid',
 		'uri',
 		'url',
 		'ref',
 		'status',
 		'title',
+		'searchScore',
+		'slug',
+		'prev',
+		'next',
+		'contentTable'
 	);
 
 	/**

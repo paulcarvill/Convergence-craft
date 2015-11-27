@@ -19,6 +19,8 @@ class TemplatesService extends BaseApplicationComponent
 	// Properties
 	// =========================================================================
 
+	private static $_elementThumbSizes = array(30, 60, 100, 200);
+
 	/**
 	 * @var
 	 */
@@ -128,7 +130,7 @@ class TemplatesService extends BaseApplicationComponent
 	 * @param string $loaderClass The name of the class that should be initialized as the Twig instance’s template
 	 *                            loader. If no class is passed in, {@link TemplateLoader} will be used.
 	 *
-	 * @return \Twig_Environment The Twig Environment instance.
+	 * @return TwigEnvironment The Twig Environment instance.
 	 */
 	public function getTwig($loaderClass = null)
 	{
@@ -142,7 +144,7 @@ class TemplatesService extends BaseApplicationComponent
 			$loader = new $loaderClass();
 			$options = $this->_getTwigOptions();
 
-			$twig = new \Twig_Environment($loader, $options);
+			$twig = new TwigEnvironment($loader, $options);
 
 			$twig->addExtension(new \Twig_Extension_StringLoader());
 			$twig->addExtension(new CraftTwigExtension());
@@ -158,6 +160,9 @@ class TemplatesService extends BaseApplicationComponent
 
 			// Give plugins a chance to add their own Twig extensions
 			$this->_addPluginTwigExtensions($twig);
+
+			// Set our custom parser to support "include" tags using the capture mode
+			$twig->setParser(new TwigParser($twig));
 
 			$this->_twigs[$loaderClass] = $twig;
 		}
@@ -241,7 +246,7 @@ class TemplatesService extends BaseApplicationComponent
 		$result = call_user_func_array(array($twigTemplate, 'get'.$macro), $args);
 		$this->_renderingTemplate = $lastRenderingTemplate;
 
-		return $result;
+		return (string) $result;
 	}
 
 	/**
@@ -374,7 +379,7 @@ class TemplatesService extends BaseApplicationComponent
 	 */
 	public function includeFootNode($node, $first = false)
 	{
-		craft()->deprecator->log('TemplatesService::includeFootNode()', 'TemplatesService::includeFootNode() has been deprecated. Use includeFootNode() instead.');
+		craft()->deprecator->log('TemplatesService::includeFootNode()', 'TemplatesService::includeFootNode() has been deprecated. Use includeFootHtml() instead.');
 		$this->includeFootHtml($node, $first);
 	}
 
@@ -571,7 +576,7 @@ class TemplatesService extends BaseApplicationComponent
 		{
 			foreach ($this->_cssFiles as $url)
 			{
-				$node = '<link rel="stylesheet" type="text/css" href="'.$url.'"/>';
+				$node = HtmlHelper::encodeParams('<link rel="stylesheet" type="text/css" href="{url}"/>', array('url' => $url));
 				$this->includeHeadHtml($node);
 			}
 
@@ -966,6 +971,11 @@ class TemplatesService extends BaseApplicationComponent
 	 */
 	public function namespaceInputs($html, $namespace = null, $otherAttributes = true)
 	{
+		if (!is_string($html) || $html === '')
+		{
+			return '';
+		}
+
 		if ($namespace === null)
 		{
 			$namespace = $this->getNamespace();
@@ -1285,7 +1295,18 @@ class TemplatesService extends BaseApplicationComponent
 			{
 				foreach ($pluginExtensions as $extension)
 				{
-					$twig->addExtension($extension);
+					// It's possible for a plugin to register multiple extensions.
+					if (is_array($extension))
+					{
+						foreach ($extension as $innerExtension)
+						{
+							$twig->addExtension($innerExtension);
+						}
+					}
+					else
+					{
+						$twig->addExtension($extension);
+					}
 				}
 			}
 			catch (\LogicException $e)
@@ -1346,62 +1367,82 @@ class TemplatesService extends BaseApplicationComponent
 			$context['context'] = 'index';
 		}
 
-		if (!isset($context['viewMode']))
+		if (isset($context['elementType']))
 		{
-			$context['viewMode'] = 'table';
-		}
-
-		$thumbClass = 'elementthumb'.$context['element']->id;
-		$iconClass = 'elementicon'.$context['element']->id;
-
-		if ($context['viewMode'] == 'thumbs')
-		{
-			$thumbSize = 100;
-			$iconSize = 90;
-			$thumbSelectorPrefix = '.thumbsview ';
+			$elementType = $context['elementType'];
 		}
 		else
 		{
-			$thumbSize = 30;
-			$iconSize = 20;
-			$thumbSelectorPrefix = '';
+			$elementType = craft()->elements->getElementType($context['element']->getElementType());
 		}
 
-		$thumbUrl = $context['element']->getThumbUrl($thumbSize);
+		// How big is the element going to be?
+		if (isset($context['size']) && ($context['size'] == 'small' || $context['size'] == 'large'))
+		{
+			$elementSize = $context['size'];
+		}
+		else if (isset($context['viewMode']) && $context['viewMode'] == 'thumbs')
+		{
+			$elementSize = 'large';
+		}
+		else
+		{
+			$elementSize = 'small';
+		}
+
+		// Create the thumb/icon image, if there is one
+		// ---------------------------------------------------------------------
+
+		$thumbUrl = $context['element']->getThumbUrl(self::$_elementThumbSizes[0]);
 
 		if ($thumbUrl)
 		{
-			$this->includeCss($thumbSelectorPrefix.'.'.$thumbClass." { background-image: url('".$thumbUrl."'); }");
-			$this->includeHiResCss($thumbSelectorPrefix.'.'.$thumbClass." { background-image: url('".$context['element']->getThumbUrl($thumbSize * 2)."'); background-size: ".$thumbSize.'px; }');
+			$srcsets = array();
+
+			foreach (self::$_elementThumbSizes as $i => $size)
+			{
+				if ($i == 0)
+				{
+					$srcset = $thumbUrl;
+				}
+				else
+				{
+					$srcset = $context['element']->getThumbUrl($size);
+				}
+
+				$srcsets[] = $srcset.' '.$size.'w';
+			}
+
+			$imgHtml = '<div class="elementthumb">'.
+				'<img '.
+				'sizes="'.($elementSize == 'small' ? self::$_elementThumbSizes[0] : self::$_elementThumbSizes[2]).'px" '.
+				'srcset="'.implode(', ', $srcsets).'" '.
+				'alt="">'.
+				'</div> ';
 		}
 		else
 		{
-			$iconUrl = $context['element']->getIconUrl($iconSize);
-
-			if ($iconUrl)
-			{
-				$this->includeCss($thumbSelectorPrefix.'.'.$iconClass." { background-image: url('".$iconUrl."'); }");
-				$this->includeHiResCss($thumbSelectorPrefix.'.'.$iconClass." { background-image: url('".$context['element']->getIconUrl($iconSize * 2)."); background-size: ".$iconSize.'px; }');
-			}
+			$imgHtml = '';
 		}
 
-		$html = '<div class="element';
+		$html = '<div class="element '.$elementSize;
 
 		if ($context['context'] == 'field')
 		{
 			$html .= ' removable';
 		}
 
+		if ($elementType->hasStatuses())
+		{
+			$html .= ' hasstatus';
+		}
+
 		if ($thumbUrl)
 		{
 			$html .= ' hasthumb';
 		}
-		else if ($iconUrl)
-		{
-			$html .= ' hasicon';
-		}
 
-		$label = HtmlHelper::encode($context['element']);
+		$label = $context['element'];
 
 		$html .= '" data-id="'.$context['element']->id.'" data-locale="'.$context['element']->locale.'" data-status="'.$context['element']->getStatus().'" data-label="'.$label.'" data-url="'.$context['element']->getUrl().'"';
 
@@ -1425,40 +1466,23 @@ class TemplatesService extends BaseApplicationComponent
 			$html .= '<a class="delete icon" title="'.Craft::t('Remove').'"></a> ';
 		}
 
-		if ($thumbUrl)
-		{
-			$html .= '<div class="elementthumb '.$thumbClass.'"></div> ';
-		}
-		else if ($iconUrl)
-		{
-			$html .= '<div class="elementicon '.$iconClass.'"></div> ';
-		}
-
-		$html .= '<div class="label">';
-
-		if (isset($context['elementType']))
-		{
-			$elementType = $context['elementType'];
-		}
-		else
-		{
-			$elementType = craft()->elements->getElementType($context['element']->getElementType());
-		}
-
 		if ($elementType->hasStatuses())
 		{
 			$html .= '<span class="status '.$context['element']->getStatus().'"></span>';
 		}
 
+		$html .= $imgHtml;
+		$html .= '<div class="label">';
+
 		$html .= '<span class="title">';
 
 		if ($context['context'] == 'index' && ($cpEditUrl = $context['element']->getCpEditUrl()))
 		{
-			$html .= '<a href="'.$cpEditUrl.'">'.$label.'</a>';
+			$html .= HtmlHelper::encodeParams('<a href="{cpEditUrl}">{label}</a>', array('cpEditUrl' => $cpEditUrl, 'label' => $label));
 		}
 		else
 		{
-			$html .= $label;
+			$html .= HtmlHelper::encode($label);
 		}
 
 		$html .= '</span></div></div>';

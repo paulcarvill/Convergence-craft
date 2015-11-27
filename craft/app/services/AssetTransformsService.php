@@ -317,12 +317,17 @@ class AssetTransformsService extends BaseApplicationComponent
 			$this->storeTransformIndexData($index);
 
 			// Generate the transform
-			$this->generateTransform($index);
-
-			// Update the index
-			$index->inProgress = 0;
-			$index->fileExists = 1;
-			$this->storeTransformIndexData($index);
+			if ($this->generateTransform($index))
+			{
+				// Update the index
+				$index->inProgress = 0;
+				$index->fileExists = 1;
+				$this->storeTransformIndexData($index);
+			}
+			else
+			{
+				throw new Exception(Craft::t('Failed to save the transform.'));
+			}
 		}
 
 		return $this->getUrlForTransformByIndexId($index->id);
@@ -383,6 +388,7 @@ class AssetTransformsService extends BaseApplicationComponent
 				->where('fileId = :fileId', array(':fileId' => $file->id))
 				->andWhere(array('in', 'location', $possibleLocations))
 				->andWhere('id <> :indexId', array(':indexId' => $index->id))
+				->andWhere('fileExists = 1')
 				->queryAll();
 
 			foreach ($results as $result)
@@ -411,6 +417,8 @@ class AssetTransformsService extends BaseApplicationComponent
 		{
 			$this->_createTransformForFile($file, $index);
 		}
+
+		return $source->fileExists($file->getFolder()->path.$this->getTransformSubfolder($file, $index), $this->getTransformFilename($file, $index));
 	}
 
 	/**
@@ -602,12 +610,14 @@ class AssetTransformsService extends BaseApplicationComponent
 	{
 		craft()->db->createCommand()->delete('assettransformindex', 'id = :id', array(':id' => $indexId));
 	}
+
 	/**
 	 * Get a thumb server path by file model and size.
 	 *
 	 * @param $fileModel
 	 * @param $size
 	 *
+	 * @throws Exception
 	 * @return bool|string
 	 */
 	public function getThumbServerPath(AssetFileModel $fileModel, $size)
@@ -624,7 +634,7 @@ class AssetTransformsService extends BaseApplicationComponent
 			$imageSource = $this->getLocalImageSource($fileModel);
 
 			craft()->images->loadImage($imageSource)
-				->scaleAndCrop($size, $size)
+				->scaleToFit($size)
 				->saveAs($thumbPath);
 
 			if (craft()->assetSources->populateSourceType($fileModel->getSource())->isRemote())
@@ -735,18 +745,20 @@ class AssetTransformsService extends BaseApplicationComponent
 		if ($maxCachedImageSize > 0 && ImageHelper::isImageManipulatable($localCopy))
 		{
 
-			craft()->images->loadImage($localCopy)->scaleToFit($maxCachedImageSize, $maxCachedImageSize)->setQuality(100)->saveAs($destination);
+			$image = craft()->images->loadImage($localCopy);
 
-			if ($localCopy != $destination)
+			if ($image instanceof Image)
 			{
-				IOHelper::deleteFile($localCopy);
+				$image->setQuality(100);
 			}
+
+			$image->scaleToFit($maxCachedImageSize, $maxCachedImageSize)->saveAs($destination);
 		}
 		else
 		{
 			if ($localCopy != $destination)
 			{
-				IOHelper::move($localCopy, $destination);
+				IOHelper::copyFile($localCopy, $destination);
 			}
 		}
 	}
@@ -988,9 +1000,9 @@ class AssetTransformsService extends BaseApplicationComponent
 	private function _getUnnamedTransformFolderName(AssetTransformModel $transform)
 	{
 		return '_'.($transform->width ? $transform->width : 'AUTO').'x'.($transform->height ? $transform->height : 'AUTO') .
-			'_'.($transform->mode) .
-			'_'.($transform->position) .
-			($transform->quality ? '_'.$transform->quality : '');
+		'_'.($transform->mode) .
+		'_'.($transform->position) .
+		($transform->quality ? '_'.$transform->quality : '');
 	}
 
 	/**
@@ -1032,8 +1044,19 @@ class AssetTransformsService extends BaseApplicationComponent
 		$imageSource = $file->getTransformSource();
 		$quality = $transform->quality ? $transform->quality : craft()->config->get('defaultImageQuality');
 
-		$image = craft()->images->loadImage($imageSource);
-		$image->setQuality($quality);
+		if (StringHelper::toLowerCase($file->getExtension()) == 'svg' && $index->detectedFormat != 'svg')
+		{
+			$image = craft()->images->loadImage($imageSource, true, max($transform->width, $transform->height));
+		}
+		else
+		{
+			$image = craft()->images->loadImage($imageSource);
+		}
+
+		if ($image instanceof Image)
+		{
+			$image->setQuality($quality);
+		}
 
 		switch ($transform->mode)
 		{

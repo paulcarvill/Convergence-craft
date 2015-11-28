@@ -41,17 +41,10 @@
 					</g>
 				</svg>
 			</a>
-			<!-- <h4>TOPICS</h4>
-			<% if @blog %>
-				<% @blog.tags.each do |tag| %>
-					<span><%= link_to tag.name, blogs_url(:tag => tag.name) %></span>
-				<% end %>
-			<% end %>
-			<% if @event %>
-				<% @event.tags.each do |tag| %>
-					<span><%= link_to tag.name, events_url(:tag => tag.name) %></span>
-				<% end %>
-			<% end %> -->
+			<h4>TAGS</h4>
+    		{% for tag in craft.tags.relatedTo(entries) %}
+    			<span><a href="/{{craft.request.lastSegment}}?tag={{ tag.title | url_encode }}">{{ tag.title }}</a></span>
+    		{% endfor %}
 		</div>
 	</div>
 </div>

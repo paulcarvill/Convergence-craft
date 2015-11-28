@@ -4,3 +4,5 @@ bower
 *.sublime-project
 *.sublime-workspace
 craft/config/license.key
+.vagrant
+public/uploads

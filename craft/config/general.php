@@ -10,4 +10,5 @@
 return array(
 	"env" => CRAFT_ENVIRONMENT,
 	"showBetaUpdates" => true,
+	'omitScriptNameInUrls' => true
 );

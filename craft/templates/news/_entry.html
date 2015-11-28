@@ -19,7 +19,7 @@
 
 {% block page_content %}
 <div id="container">
-    <img src="{{ entry.newsImage.first.getUrl('x1280x500') }}" />
+    <img src="{{ entry.newsImage.first.getUrl() }}" />
 
 	<div class="content">
 		<div class="body">
@@ -29,7 +29,7 @@
 					<p>{{ entry.postDate | date("d") }}</p>
 					<p>{{ entry.postDate | date("d f") }}</p>
 				</div>
-				<p class="author">{{ entry.postDate | date("d F Y")| upper }}</p>
+				<p class="author">{{ entry.postAuthor }} | {{ entry.postDate | date("d F Y")| upper }}</p>
 				{{ entry.body }}
 			</div>
 		</div>

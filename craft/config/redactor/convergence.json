@@ -1,0 +1,4 @@
+{
+	"buttons": ["source","formatting","bold","italic","unorderedlist","orderedlist","link","image","video"],"plugins":["source","fullscreen","video"],
+	"toolbarFixed": true
+}

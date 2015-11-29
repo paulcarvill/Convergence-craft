@@ -4,16 +4,16 @@
 {% extends "_layouts/default.html" %}
 
 {% block meta %}
-<meta property="og:url" content="<%= request.url %>" /> 
+<meta property="og:url" content="http://convergence-london.com" /> 
 <meta property="og:title" content="Convergence" />
 <meta property="og:description" content="music + art + technology: Convergence is a series of events focusing on pioneers who use technology to innovate: to break the usual beat rather than getting stuck in a loop" /> 
-<meta property="og:image" content="http://<%= request.host %><%= asset_path 'socialconv.png' %>" />
+<meta property="og:image" content="/assets/img/socialconv.png" />
 <meta property="og:type" content="website" />
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@ConvergenceLDN">
 <meta name="twitter:title" content="Convergence: music + art + technology">
 <meta name="twitter:description" content="Convergence is a series of events focusing on pioneers who use technology to innovate: to break the usual beat rather than getting stuck in a loop.">
-<meta name="twitter:image:src" content="http://<%= request.host %><%= asset_path 'socialconv.png' %>">
+<meta name="twitter:image:src" content="/assets/img/socialconv.png">
 {% endblock %}
 
 {% block page_content %}

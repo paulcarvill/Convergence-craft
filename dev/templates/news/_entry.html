@@ -6,15 +6,15 @@
 <meta property="og:url" content="{{ craft.request.url }}" /> 
 <meta property="og:title" content="{{ entry.title }}" />
 <meta property="og:description" content="" /> 
-<meta property="og:image" content="" />
+<meta property="og:image" content="{{ entry.newsImage.first.getUrl() }}" />
 <meta property="og:type" content="website" />
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@ConvergenceLDN">
 <meta name="twitter:creator" content="@ConvergenceLDN">
 <meta name="twitter:title" content="">
-<meta name="twitter:description" content="">
-<meta name="twitter:image:src" content="">
+<meta name="twitter:description" content="{{ entry.body|hacksaw(words='20') }}">
+<meta name="twitter:image:src" content="{{ entry.newsImage.first.getUrl() }}">
 {% endblock %}
 
 {% block page_content %}
@@ -27,7 +27,7 @@
 				<h1>{{ entry.title }}</h1>
 				<div class="datesquare">
 					<p>{{ entry.postDate | date("d") }}</p>
-					<p>{{ entry.postDate | date("d f") }}</p>
+					<p>{{ entry.postDate | date("M") }}</p>
 				</div>
 				<p class="author">{{ entry.postAuthor }} | {{ entry.postDate | date("d F Y")| upper }}</p>
 				{{ entry.body }}

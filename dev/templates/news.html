@@ -39,7 +39,7 @@
 				{% for entry in entries %}
 					<h1>{{ entry.getLink() }}</h1>
 					<p class="author">{{ entry.postDate | date("d F Y")| upper }}</p>
-					<a href="/news/{{entry.slug }}"><img src="{{ entry.newsImage.first.getUrl('x1280x500') }}" /></a>
+					<a href="/news/{{entry.slug }}"><img src="{{ entry.newsImage.first.getUrl() }}" /></a>
 					<p>{{ entry.body|hacksaw(words='100', append='&hellip;') }}</p>
             		<p><a href="/news/{{ entry.slug }}">&hellip;read more</a></p>
 				{% endfor %}

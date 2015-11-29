@@ -7,7 +7,7 @@
 <meta property="og:url" content="<%= request.url %>" /> 
 <meta property="og:title" content="Convergence" />
 <meta property="og:description" content="Music + Art + Technology" /> 
-<meta property="og:image" content="http://<%= request.host %><%= asset_path 'logo.png' %>" />
+<meta property="og:image" content="/assets/img/logo.png" />
 <meta property="og:type" content="website" />
 
 <meta name="twitter:card" content="summary">
@@ -35,7 +35,7 @@
             <p class="time"><b>{{ entry.startTime| date("d F Y")| upper }}</b></p>
             <p class="address">{{ entry.venue.first }}</p>
             <p class="address">{{ entry.startTime| date("H:i")| upper }} - {{ entry.endTime| date("H:i")| upper }}</p>
-            <a href="/events/{{ entry.slug }}"><img src="{{ entry.eventImageShort.first.getUrl('x1280x500') }}" /></a>
+            <a href="/events/{{ entry.slug }}"><img src="{{ entry.eventImageShort.first.getUrl() }}" /></a>
             <p>{{ entry.body|hacksaw(words='100', append='&hellip;') }}</p>
             <p><a href="/events/{{ entry.slug }}">&hellip;read more</a></p>
             <p>£{{ entry.price }}</p>

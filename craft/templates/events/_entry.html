@@ -6,7 +6,7 @@
 <meta property="og:url" content="{{ craft.request.url }}" /> 
 <meta property="og:title" content="{{ entry.title }}" />
 <meta property="og:description" content="{{ entry.body|hacksaw(words='100', append='&hellip;') }}" /> 
-<meta property="og:image" content="http://<%= craft.request.host %>/assets/img/logo.png" />
+<meta property="og:image" content="{{ entry.eventImage.first.getUrl() }}" />
 <meta property="og:type" content="website" />
 
 <meta name="twitter:card" content="summary_large_image">
@@ -14,12 +14,12 @@
 <meta name="twitter:creator" content="@ConvergenceLDN">
 <meta name="twitter:title" content="{{ entry.title }}">
 <meta name="twitter:description" content="{{ entry.body|hacksaw(words='20') }}">
-<meta name="twitter:image:src" content="{{ entry.eventImage.first.getUrl('x1280x500') }}">
+<meta name="twitter:image:src" content="{{ entry.eventImage.first.getUrl() }}">
 {% endblock %}
 
 {% block page_content %}
 <div id="container">
-  <img src="{{ entry.eventImageShort.first.getUrl('x1280x500') }}" />
+  <img src="{{ entry.eventImageShort.first.getUrl() }}" />
     
   <div class="content">
     <div class="body">

@@ -43,7 +43,7 @@
 			</a>
 			<h4>TAGS</h4>
     		{% for tag in craft.tags.relatedTo(entries) %}
-    			<span><a href="/{{craft.request.lastSegment}}?tag={{ tag.title | url_encode }}">{{ tag.title }}</a></span>
+    			<span><a href="/{{craft.request.firstSegment}}?tag={{ tag.title | url_encode }}">{{ tag.title }}</a></span>
     		{% endfor %}
 		</div>
 	</div>

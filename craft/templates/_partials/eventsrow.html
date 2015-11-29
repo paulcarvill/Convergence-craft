@@ -3,7 +3,7 @@
     <div>
       {% for event in row %}
       <a href="/events/{{ event.slug }}" />
-        <div class="event-container" style="z-index: <%= (i*-1)+5%>; background-image: url({{event.eventImage.first.getUrl('x1280x500') }});">
+        <div class="event-container" style="z-index: <%= (i*-1)+5%>; background-image: url({{event.eventImage.first.getUrl() }});">
           <div class="event-overlay">
           </div>
         </div>

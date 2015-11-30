@@ -42,7 +42,7 @@
 				</svg>
 			</a>
 			<h4>TAGS</h4>
-    		{% for tag in craft.tags.relatedTo(entries) %}
+    		{% for tag in craft.tags.relatedTo(entry) %}
     			<span><a href="/{{craft.request.firstSegment}}?tag={{ tag.title | url_encode }}">{{ tag.title }}</a></span>
     		{% endfor %}
 		</div>

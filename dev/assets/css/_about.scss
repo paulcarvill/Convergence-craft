@@ -69,11 +69,9 @@ a.buyrainbow {
 	z-index: 999;
 	text-transform: uppercase;
 	border: 0;
-	background: -webkit-linear-gradient(0deg, #e5f41c, #0cb1e4);
-	-webkit-background-clip: text;
-  	-webkit-text-fill-color: transparent;
+	color: #0cb1e4;
 	padding-top: 2px;
 	cursor: pointer;
-	font-size: 16px;
-	line-height: 16px;
+	font-size: 24px;
+	line-height: 24px;
 }

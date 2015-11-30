@@ -42,7 +42,7 @@
 #mailinglistrow button {
   width: 64px;
   height: 64px;
-  background: url(/assets/img/submit.gif);
+  background: -webkit-linear-gradient(0deg, #e5f41c, #0cb1e4);
   border: 0;
   padding: 0;
   margin: 0;
@@ -57,7 +57,7 @@ a.buy {
 	width: 148px;
 	height: 50px;
 	padding-top: 20px;
-	background: url(/assets/img/button.gif);
+	background: -webkit-linear-gradient(0deg, #e5f41c, #0cb1e4);
 	cursor: pointer;
 	display: block;
 	text-align: center;
@@ -69,7 +69,7 @@ a.buyrainbow {
 	z-index: 999;
 	text-transform: uppercase;
 	border: 0;
-	background: -webkit-linear-gradient(0deg, #2aa9ea, #e90190);
+	background: -webkit-linear-gradient(0deg, #e5f41c, #0cb1e4);
 	-webkit-background-clip: text;
   	-webkit-text-fill-color: transparent;
 	padding-top: 2px;

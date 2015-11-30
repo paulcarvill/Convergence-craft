@@ -1,7 +1,7 @@
 .player {
 	display: block;
 	height: 4px;
-	background: linear-gradient(90deg, #2aa9ea, #e90190);
+	background: linear-gradient(90deg, #e5f41c, #0cb1e4);
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -97,8 +97,7 @@ body:not(.pages-index, .pages-about) nav {
     font-family: arial;
     font-weight: bold;
     font-size: 12px;
-
-    background: -webkit-linear-gradient(45deg, #2aa9ea, #e90190);
+    background: -webkit-linear-gradient(0deg, #e5f41c, #0cb1e4);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }

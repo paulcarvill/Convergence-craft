@@ -1,5 +1,5 @@
 {% for event in events.limit(4) %}
-<div class="splash" style="background-image: url({{event.eventImage.first.getUrl() }});">
+<div class="splash" style="opacity: 0; background-image: url({{event.eventImage.first.getUrl() }});">
 	<div class="splash-inner">
 		<div>
 			<h1>{{ event.title }}</h1>

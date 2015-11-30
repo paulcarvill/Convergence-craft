@@ -168,6 +168,11 @@ footer a {
   opacity: 1;
 }
 
+.pages-index .events>div>a:hover .event-overlay {
+  background: linear-gradient(rgba(229, 244, 28, 0.6), rgba(12, 177, 228, 0.6));
+  opacity: 1;
+}
+
 .venues-index #wrapper {
   display: none;
 }
@@ -256,7 +261,7 @@ footer a {
 }
 
 #mailinglistrow {
-  background: #f1f1f1 url('/assets/img/dots.png') 50% 100% no-repeat;
+  background: #f1f1f1;
 }
 
 #mailinglistrow p,
@@ -409,7 +414,7 @@ footer a img {
 }
 
 .events p.time {
-  margin-left: 0; margin-right: 0; margin-top: 0px; font-size: 16px; color: #f200ff
+  margin-left: 0; margin-right: 0; margin-top: 0px; font-size: 16px; color: #0cb1e4;
 }
 
 .events p.name {
@@ -432,7 +437,7 @@ footer a img {
   }
 
   .events p.time {
-    margin-left: 0; margin-right: 0; margin-top: 0px; font-size: 16px; color: #f200ff
+    margin-left: 0; margin-right: 0; margin-top: 0px; font-size: 16px; color: #0cb1e4
   }
 
   .events p.name {
@@ -474,7 +479,7 @@ footer a img {
   }
 
   .events p.time {
-    margin-left: 0; margin-right: 0; margin-top: 0px; font-size: 16px; color: #f200ff
+    margin-left: 0; margin-right: 0; margin-top: 0px; font-size: 16px; color: #0cb1e4
   }
 
   .events p.name {
@@ -500,7 +505,7 @@ footer a img {
   }
 
   .events p.time {
-    margin-left: 0; margin-right: 0; margin-top: 0px; font-size: 16px; color: #f200ff
+    margin-left: 0; margin-right: 0; margin-top: 0px; font-size: 16px; color: #0cb1e4
   }
 
   .events p.name {
@@ -618,7 +623,7 @@ footer a img {
   }
 
   .events p.time {
-    margin-left: 0; margin-right: 0; margin-top: 0px; font-size: 16px; color: #f200ff
+    margin-left: 0; margin-right: 0; margin-top: 0px; font-size: 16px; color: #0cb1e4
   }
 
   .events p.name {
@@ -753,7 +758,9 @@ footer a img {
 } /* end 320 */
 
 
-
+.archive .events p.time {
+  color: #f200ff;
+}
 
 
 

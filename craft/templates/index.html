@@ -166,7 +166,9 @@ var Radar = (function(){
       node.paintedY = node.y + node.offsetY;
       ctx.beginPath();
       ctx.arc( node.paintedX, node.paintedY, node.size, 0, Math.PI * 2, true );
-      ctx.fillStyle = 'hsla('+ ( ((node.distanceTo( ctx.mouse.x, ctx.mouse.y ) / (world.width) ) * 94)+213) +', 100%, 50%, 0.6)';
+      //ctx.fillStyle = 'hsla('+ ( ((node.distanceTo( ctx.mouse.x, ctx.mouse.y ) / (world.width) ) * 156)) +', 90%, 53%, 0.6)';
+      //ctx.fillStyle = 'hsla(63, 90%, 53%, 0.6)';
+      ctx.fillStyle = 'hsla(194, 90%, 47%, 0.7)';
       ctx.fill();
       ctx.strokeStyle = ctx.fillStyle;
       ctx.beginPath();
@@ -196,7 +198,8 @@ var Radar = (function(){
     this.offsetTargetY = 0;
     this.paintedX = this.x;
     this.paintedY = this.y;
-    this.color = 'hsla('+ ( ((x / world.width ) * 94)+213) +', 75%, 50%, 0.7)'
+    
+    this.color = 'hsla(126, 90%, 47%, 0.7)'
   }
   Node.prototype = new Point();
   Node.prototype.distanceToNode = function( node ) {

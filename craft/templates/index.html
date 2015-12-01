@@ -1,5 +1,5 @@
 {% set title = "music + art + technology" %}
-{% set events = craft.entries.section('events').order('startTime desc').startTime('> 2015-12-31') %}
+{% set events = craft.entries.section('events').order('startTime asc').startTime('> 2015-12-31') %}
 {% set bodyClasses = "pages-index" %}
 {% extends "_layouts/default.html" %}
 

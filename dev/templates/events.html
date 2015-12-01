@@ -1,5 +1,5 @@
 {% set title = "events" %}
-{% set entries = craft.entries.section('events').order('startTime desc').startTime('> 2015-12-31') %}
+{% set entries = craft.entries.section('events').order('startTime asc').startTime('> 2015-12-31') %}
 {% set bodyClasses = "events-index" %}
 {% extends "_layouts/default.html" %}
 
